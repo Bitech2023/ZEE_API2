@@ -33,27 +33,22 @@ SECRET_KEY = 'django-insecure-bujl^isj#ka%_k8e!i-uj34t9-vq_sg@hoq6tm@w(1+=!ts!2a
 DEBUG = True
 APPEND_SLASH=True
 
-CORS_ALLOWED_ORIGINS = [
-   "http://localhost:8000",
-   "htpp://127.0.0.1:8000",
-   "http://192.168.8.124:8000",
-   "http://192.168.8.179:8080",
-   "http://172.20.10.12:8080",
 
+ALLOWED_HOSTS = ["*"]
 
-    ]
- # Application definition
-
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "192.168.8.124",
-    "192.168.8.179",
-    "172.20.10.12"
-
-    ]
-
-
+# dispositivos aceites
+# CORS_ALLOWED_ORIGINS = [
+#     #"http://localhost:4000",
+#     "http://192.168.68.95:3000",
+# ]
+# Outras configurações do CORS
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+CORS_ALLOWED_HEADERS = ["*"]
+CORS_EXPOSE_HEADERS = []
+CORS_PREFLIGHT_MAX_AGE = 86400
+CORS_ALLOW_ALL_ORIGINS = True
+# AUTH_USER_MODEL = 'users.User'
 # Application definition
 
 INSTALLED_APPS = [
@@ -63,7 +58,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     # "app",
     "empresas",
     "lotes",  

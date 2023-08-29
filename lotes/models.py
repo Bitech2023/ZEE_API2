@@ -3,10 +3,6 @@ from empresas.models import EmpresaModel
 from utils.defaultModel import globalModel
 from lotes.models import *
 
-class LocalizacaoLoteModel(globalModel):
-     latitude = models.CharField(max_length=9, null=True)
-     longitude = models.CharField(max_length=9, null=True) 
-
 
 class LoteModel(globalModel):
          
@@ -18,19 +14,32 @@ class LoteModel(globalModel):
      numero_do_lote = models.IntegerField()
      status = models.CharField( choices=option_estado, default= 'desocupado', max_length=25)
      data_disponibilidade = models.DateField(auto_now_add=True) 
-     Descricao =models.TextField(null=False) 
+     descricao =models.TextField(null=False) 
      tipo =models.CharField(max_length=50,  null=False) 
      comprimento = models.IntegerField(default=00000)
      largura = models.IntegerField(default=00000)
-     localizacao =models.ForeignKey(LocalizacaoLoteModel, on_delete=models.CASCADE)
+  
+
      imagem = models.ImageField(upload_to='static/images/lotes/', blank= True, null=True)
      valor_do_lote = models.DecimalField(decimal_places=2,max_digits=10, default=00000000)
      informacoes_de_infraestrutura = models.TextField()
-     empresaID = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE, default=True)
 
 
      def __str__(self):
-          return str(self.numero_do_lote)
+          return (f"{self.numero_do_lote} - {self.status}")
+
+
+class LoteEmpresaModel(globalModel):
+     loteId = models.ManyToManyField(LoteModel, default=True)
+     empresaid = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE, default=True)
+
+
+
+class LocalizacaoLoteModel(globalModel):
+     latitude = models.CharField(max_length=35, null=True)
+     longitude = models.CharField(max_length=35, null=True) 
+     loteID = models.ForeignKey(LoteModel, on_delete=models.CASCADE, default=True)
+
 
 class LoteSolicitacaoModel(globalModel):
      option_finalidade = [
@@ -54,7 +63,7 @@ class LoteSolicitacaoModel(globalModel):
      nif_empresa_solicitante = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE) 
      data_solicitacao = models.DateField(auto_created=True)
      finalidade_de_utilizacao = models.CharField(choices=option_finalidade, default="Industrial",max_length=100)
-     status_da_solicitacao = models.CharField(choices=option_status, default='Rejeitada', max_length=25)
+     status_da_solicitacao = models.CharField(choices=option_status, default='Em Análise', max_length=25)
 
 
 class LoteAtribuicaoModel(globalModel):

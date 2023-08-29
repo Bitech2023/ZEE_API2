@@ -1,9 +1,23 @@
 from django.db import models
 from utils.defaultModel import globalModel
-import uuid
 
 
+
+class EmpresaModel(globalModel):
+    nome_da_empresa =  models.CharField(max_length=55, null=False)
+    numero_de_funcionarios =  models.IntegerField(null=True)
+    nif = models.CharField(max_length=15, null=False)
+    dono_da_empresa = models.CharField(max_length=55 , null=False)
+    sector_actividade =  models.CharField(max_length=55, null=False)
+    logo  = models.ImageField(upload_to="static/imagens/logo/", blank= True, null=True)
+    email_da_empresa = models.EmailField(unique=True)
+    telefone = models.IntegerField(unique=True, default=927860898)
+ 
+
+    def __str__(self):
+        return str(self.nif)
     
+
 class FuncionariosModel(globalModel):
 
     option_sexo =[
@@ -21,26 +35,12 @@ class FuncionariosModel(globalModel):
     email = models.EmailField(unique=True)
     numero_telefone = models.IntegerField(unique=True, default=927860898,null=False)
     foto = models.ImageField(upload_to="static/imagens/fotos/", blank=True,null=True)
+    empresaId = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE)
 
 
     def __str__(self):  
         return self.bi
 
-
-class EmpresaModel(globalModel):
-    nome_da_empresa =  models.CharField(max_length=55, null=False)
-    numero_de_funcionarios =  models.IntegerField(null=True)
-    principais_funcionarios = models.OneToOneField(FuncionariosModel, on_delete=models.CASCADE, max_length=100, default=0, null=True, unique=True)
-    nif = models.CharField(max_length=15, null=False)
-    dono_da_empresa = models.CharField(max_length=55 , null=False)
-    sector_actividade =  models.CharField(max_length=55, null=False)
-    logo  = models.ImageField(upload_to="static/imagens/logo/", blank= True, null=True)
-    email_da_empresa = models.EmailField(unique=True)
-    telefone = models.IntegerField(unique=True, default=927860898)
- 
-
-    def __str__(self):
-        return str(self.nif)
 
  
 

@@ -12,7 +12,7 @@ urlpatterns = [
     path('api/', include("lotes.urls")),
     path('api/', include("empresas.urls")),
     path('api/', include("pagamentos.urls")),
-    path('api/', include("users.urls")),
+    path('api/users/', include("users.urls")),
  
 
 ]

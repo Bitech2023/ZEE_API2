@@ -339,3 +339,16 @@ class DescricaoListView(generics.ListAPIView):
     serializer_class = DescricaoSerializer
     permission_classes = [IsAdminUser]
     authentication_classes = [JWTAuthentication]
+
+
+class LoteEmpresaListCreate(generics.ListCreateAPIView):
+    queryset = LoteEmpresaModel.objects.all()
+    serializer_class = LoteEmpresaSerializer
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+
+class LoteEmpresaRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    queryset = LoteEmpresaModel.objects.all()
+    serializer_class = LoteEmpresaSerializer
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]

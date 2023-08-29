@@ -11,15 +11,15 @@ from rest_framework import status
 class EmpresaListView(generics.ListAPIView):
     queryset = EmpresaModel.objects.all()
     serializer_class = EmpresaSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         try:
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
 
-            return Response({"message : Bem-vindo!": serializer.data}, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         except Exception as e:
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
@@ -29,8 +29,8 @@ class EmpresaListView(generics.ListAPIView):
 class EmpresaCreateView(generics.CreateAPIView):
     queryset = EmpresaModel.objects.all()
     serializer_class = EmpresaSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
 
     def post(self,request):
@@ -38,7 +38,7 @@ class EmpresaCreateView(generics.CreateAPIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"perfil criado com sucesso "",": serializer.data} , status=status.HTTP_201_CREATED)
+                return Response(serializer.data , status=status.HTTP_201_CREATED)
             
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -51,8 +51,8 @@ class EmpresaCreateView(generics.CreateAPIView):
 class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = EmpresaModel.objects.all()
     serializer_class = EmpresaSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def put(self, request, pk):
         try:
@@ -90,15 +90,15 @@ class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class FuncionariosView(generics.ListCreateAPIView):
     queryset = FuncionariosModel.objects.all()
     serializer_class = FuncionariosSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
 #Notificacao para as Empresas gerais e especificas
 class NotificacaoGeralCreateView(generics.CreateAPIView):
     queryset = NotificacaoGeralModel.objects.all()
     serializer_class = NotificacaoGeralSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def post(self, request):
         try:
@@ -109,7 +109,7 @@ class NotificacaoGeralCreateView(generics.CreateAPIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()                
-                return Response({"Notificacao criada com sucesso: ":serializer.data}, status=status.HTTP_201_CREATED)
+                return Response({serializer.data}, status=status.HTTP_201_CREATED)
             else:
                 return Response(" message: Erro ao criar a notificacao!", status=status.HTTP_400_BAD_REQUEST)
             
@@ -120,8 +120,8 @@ class NotificacaoGeralCreateView(generics.CreateAPIView):
 class NotificacaoEmpresaCreateView(generics.CreateAPIView):
     queryset = NotificacaoEmpresaModel.objects.all()
     serializer_class = NotificacaoEmpresaSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def post(self, request):
         try:
@@ -131,7 +131,7 @@ class NotificacaoEmpresaCreateView(generics.CreateAPIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"Notificacao criada com sucesso: ":serializer.data}, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response("message:Erro ao criar a notificacao!", status=status.HTTP_400_BAD_REQUEST) 
             

@@ -5,7 +5,9 @@ urlpatterns = [
 
     #    path('auth/',include('rest_framework.urls', namespace = 'rest_framework')),
     #    path('create/', UserListCreateView.as_view(),name="User-List-Create")
-         path('auth/list/', UserListView.as_view(), name="User"),
-         path('auth/create/', UserCreateView.as_view(), name="User-Create")
+         path('', UserListView.as_view(), name="User"),
+         path('create/', UserCreateView.as_view(), name="User-Create"),
+        # path('', UserListCreateAPIView.as_view(), name='usuario-list-create'),
+         path('<str:pk>/', UserRetrieveUpdateDestroyAPIView.as_view(), name='usuario-retrieve-update-destroy'),
 
 ]
