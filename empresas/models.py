@@ -12,7 +12,8 @@ class FuncionariosModel(globalModel):
         ("nao_binario","Nao_Binario")
     ]
     
-    nome_do_funcionario = models.CharField(max_length=55 , default="Joao")
+    first_name = models.CharField(max_length=55 , default="Joao")
+    last_name = models.CharField(max_length=55, default="Paulo")
     sexo = models.CharField(choices=option_sexo, default="Nao_binario", max_length=50)
     idade = models.PositiveSmallIntegerField()
     bi = models.CharField(max_length=15,null=False, unique=True)
@@ -42,3 +43,32 @@ class EmpresaModel(globalModel):
         return str(self.nif)
 
  
+
+class NotificacaoGeralModel(globalModel):
+    option_prioridade =[
+        ("baixa","Baixa"),
+        ("normal","Normal"),
+        ("alta","Alta")
+]
+
+    titulo = models.CharField(max_length=50)
+    tipo_notificacao = models.CharField(max_length=50)
+    assunto = models.TextField(default="")
+    data = models.DateField(default=0)
+    prioridade = models.CharField(choices=option_prioridade, default="", max_length=50)
+    nif_empresa = models.ManyToManyField(EmpresaModel)
+
+
+class NotificacaoEmpresaModel(globalModel):
+    option_prioridade =[
+        ("baixa","Baixa"),
+        ("normal","Normal"),
+        ("alta","Alta")
+]
+    titulo = models.CharField(max_length=50)
+    tipo_notificacao = models.CharField(max_length=50)
+    assunto_empresa = models.TextField(default="")
+    data = models.DateField(default=0)
+    prioridade = models.CharField(choices=option_prioridade, default="", max_length=50)
+    nif_empresa = models.OneToOneField(EmpresaModel, on_delete=models.CASCADE)
+

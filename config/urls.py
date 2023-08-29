@@ -13,7 +13,7 @@ urlpatterns = [
     path('api/', include("empresas.urls")),
     path('api/', include("pagamentos.urls")),
     path('api/', include("users.urls")),
-    path('api/', include("mensagens.urls"), name="Mensagens")
+ 
 
 ]
 

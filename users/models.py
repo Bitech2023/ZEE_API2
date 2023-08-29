@@ -7,10 +7,16 @@ import uuid
 class User(AbstractUser):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
     bi =  models.CharField(max_length=15, blank=True, null=True)
     telefone = models.IntegerField(blank=True, null=True)
     data_nascimento =models.DateTimeField(auto_now_add=True)
     foto = models.ImageField(upload_to="static/images/users/", blank= True, null=True)
+
+    def __str__(self):
+        return self.username
+    
     # password = models.CharField(max_length=128)
 
     # def save(self, *args, **kwargs):
