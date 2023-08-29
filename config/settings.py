@@ -37,7 +37,8 @@ CORS_ALLOWED_ORIGINS = [
    "http://localhost:8000",
    "htpp://127.0.0.1:8000",
    "http://192.168.8.124:8000",
-   "http://192.168.8.179:8080"
+   "http://192.168.8.179:8080",
+   "http://172.20.10.12:8080",
 
 
     ]
@@ -47,7 +48,9 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "192.168.8.124",
-    "192.168.8.179"
+    "192.168.8.179",
+    "172.20.10.12"
+
     ]
 
 
@@ -66,6 +69,7 @@ INSTALLED_APPS = [
     "lotes",  
     "pagamentos",
     "mensagens",
+    'descricao',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
