@@ -19,5 +19,7 @@ urlpatterns =[
     path('lote/historico/list/', HistoricoLoteListView.as_view(), name="Historico_List"),
     path('lote/historico/create/', HistoricoLoteCreateView.as_view(), name="Historico_Create"),
     path('lote/historico/update/<uuid:pk>/', HistoricoLoteUpdateDeleteView.as_view(), name="Historico_Update_Delete"),
-    path('lote/descricao/list/', DescricaoListView.as_view(), name="Descricao_Lote" )
+    path('lote/descricao/list/', DescricaoListView.as_view(), name="Descricao_Lote" ),
+    path("pagamentos/list/",LoteListView.as_view(), name="pagamento_Lista"),
+    path('pagamentos/create/', LoteCreateView.as_view(), name="Pagamento_efectuar")
     ]

@@ -1,6 +1,10 @@
 from .models import *
 from rest_framework import serializers
 
+class PagamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = pagamento_atribuicao
+        fields = "____"
 class LoteSerializer(serializers.ModelSerializer):
 
      class Meta:

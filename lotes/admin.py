@@ -12,3 +12,5 @@ admin.site.register(LoteSolicitacaoModel)
 admin.site.register(LoteAtribuicaoModel)
 admin.site.register(HistoricoLoteModel)
 admin.site.register(Descricaomodel)
+admin.site.register(pagamento_atribuicao)
+
