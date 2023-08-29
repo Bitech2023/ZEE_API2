@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from .views import *
 
 app_Name = 'Operacoes com Lotes'
@@ -19,6 +19,5 @@ urlpatterns =[
     path('lote/historico/list/', HistoricoLoteListView.as_view(), name="Historico_List"),
     path('lote/historico/create/', HistoricoLoteCreateView.as_view(), name="Historico_Create"),
     path('lote/historico/update/<uuid:pk>/', HistoricoLoteUpdateDeleteView.as_view(), name="Historico_Update_Delete"),
-
-
+    path('lote/descricao/list/', DescricaoListView.as_view(), name="Descricao_Lote" )
     ]

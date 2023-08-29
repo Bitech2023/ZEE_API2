@@ -1,11 +1,6 @@
-from typing import Optional
-from urllib import response
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.urls import reverse_lazy 
 from utils.defaultModel import globalModel
-# from django.contrib.auth.hashers import make_password
-# from django.contrib.auth.hashers import check_password
 import uuid
 
 

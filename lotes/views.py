@@ -333,3 +333,9 @@ class HistoricoLoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         return Response("Historico do Lote Eliminado com Sucesso", status=status.HTTP_204_NO_CONTENT)
     
 
+
+class DescricaoListView(generics.ListAPIView):
+    queryset = Descricaomodel.objects.all()
+    serializer_class = DescricaoSerializer
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]

@@ -30,3 +30,9 @@ class HistoricoLoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoricoLoteModel
         fields = "__all__"
+
+
+class DescricaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Descricaomodel
+        fields = "__all__"

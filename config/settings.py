@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     "lotes",  
     "pagamentos",
     "mensagens",
-    'descricao',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',

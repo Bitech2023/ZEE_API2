@@ -1,6 +1,5 @@
 from django.db import models
 from utils.defaultModel import globalModel
-# from lotes.models import LocalizacaoLoteModel
 import uuid
 
 
@@ -30,7 +29,6 @@ class FuncionariosModel(globalModel):
 class EmpresaModel(globalModel):
     nome_da_empresa =  models.CharField(max_length=55, null=False)
     numero_de_funcionarios =  models.IntegerField(null=True)
-    # principais_funcionarios = models.OneToOneField(FuncionariosModel, on_delete=models.CASCADE, null=True, unique=True, default=0)
     principais_funcionarios = models.OneToOneField(FuncionariosModel, on_delete=models.CASCADE, max_length=100, default=0, null=True, unique=True)
     nif = models.CharField(max_length=15, null=False)
     dono_da_empresa = models.CharField(max_length=55 , null=False)
@@ -38,7 +36,7 @@ class EmpresaModel(globalModel):
     logo  = models.ImageField(upload_to="static/imagens/logo/", blank= True, null=True)
     email_da_empresa = models.EmailField(unique=True)
     telefone = models.IntegerField(unique=True, default=927860898)
-
+ 
 
     def __str__(self):
         return str(self.nif)
