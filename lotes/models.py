@@ -1,7 +1,6 @@
 from django.db import models
 from empresas.models import EmpresaModel
 from utils.defaultModel import globalModel
-from lotes.models import *
 
 
 class LoteModel(globalModel):
@@ -38,7 +37,7 @@ class LoteEmpresaModel(globalModel):
 class LocalizacaoLoteModel(globalModel):
      latitude = models.CharField(max_length=35, null=True)
      longitude = models.CharField(max_length=35, null=True) 
-     loteID = models.ForeignKey(LoteModel, on_delete=models.CASCADE, default=True)
+     loteId = models.ForeignKey(LoteModel, on_delete=models.CASCADE, default=True)
 
 
 class LoteSolicitacaoModel(globalModel):
@@ -86,11 +85,6 @@ class pagamento_atribuicao(globalModel):
      valor_do_pagamento = models.DecimalField(max_digits=10, decimal_places=2)
      numero_de_referencia = models.IntegerField()
      status_do_pagamento = models.CharField(choices=option_status,default="pendente", max_length=50) 
-
-
-class LocalizacaoLoteModel(globalModel):
-     latitude = models.CharField(max_length=9, null=True)
-     longitude = models.CharField(max_length=9, null=True) 
 
 
 class HistoricoLoteModel(globalModel):

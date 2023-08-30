@@ -5,7 +5,7 @@ app_Name = 'Operacoes com Lotes'
 
 urlpatterns =[
     path('', Index.as_view(), name='index'),
-    path('lote/' , LoteListView.as_view(), name = "Listar_os_Lotes_Existentes"),
+    path('lote' , LoteListView.as_view(), name = "Listar_os_Lotes_Existentes"),
     path('lote/create/', LoteCreateView.as_view(), name = "Adicionar_novos_lotes"),
     path('lote/update/<uuid:pk>/',LoteUpdateDeleteView.as_view(), name ="Eliminar/actualizar_lote"),
     path('localizacao/', LocalizacaoLoteView.as_view(), name='Localizaao_do_lote'),

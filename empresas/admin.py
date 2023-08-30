@@ -3,6 +3,5 @@ from . models import *
 
 admin.site.register(EmpresaModel)
 admin.site.register(FuncionariosModel)
-
 admin.site.register(NotificacaoGeralModel)
 admin.site.register(NotificacaoEmpresaModel)

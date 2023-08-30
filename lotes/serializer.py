@@ -22,6 +22,7 @@ class LoteSerializer(serializers.ModelSerializer):
         except KeyError:
             return "An error ocurred"
 
+
 class  LoteSolicitacaoSerializer(serializers.ModelSerializer):
     localizacao = serializers.SerializerMethodField()
     class Meta:

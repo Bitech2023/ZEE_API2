@@ -56,8 +56,12 @@ class UserCreateView(generics.ListCreateAPIView):
             serializer = self.serializer_class(data=request.data)
                 
             if serializer.is_valid():
+                   passwordValidator = request.data["password"]
+                   print(passwordValidator)
+                #    serializer.data.password = User.set_password(serializer.data.password)
                    serializer.save() 
-                   return Response(serializer.data )
+                   return Response(serializer.data)
  
-        except:
+        except Exception as error:
+            print(error)
             return Response({"Erro no servidor ao criar novo  usuario!"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -14,7 +14,7 @@ def get(self, request):
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
             
-            return Response({"Bem vindo!": serializer.data})
+            return Response(serializer.data)
         except:
             return Response("Erro ao processar o servico", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -67,8 +67,8 @@ class LoteListView(generics.ListAPIView):
 class LoteCreateView(generics.ListCreateAPIView):
     queryset = LoteModel.objects.all()
     serializer_class = LoteSerializer
-    permission_classes = [IsAdminUser, DjangoObjectPermissions]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser, DjangoObjectPermissions]
+    # authentication_classes = [JWTAuthentication]
 
 
     def post(self, request):
@@ -79,7 +79,7 @@ class LoteCreateView(generics.ListCreateAPIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"message": "Sucesso", "data": serializer.data}, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
@@ -151,7 +151,7 @@ class LoteSolicitacaoListView(generics.ListAPIView):
         try:
             queryset = self.get_queryset()       
             serializer = self.serializer_class(queryset, many=True)
-            return Response({"Bem-vindo:": serializer.data}, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         except:
             return Response({"Sao necessarias credenciais de usario"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -170,7 +170,7 @@ class LoteSolicitacaoListCreate(generics.ListCreateAPIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"Solicitação de Lote criada com sucesso": serializer.data}, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -224,7 +224,7 @@ class LoteAtribicaoListView(generics.ListAPIView):
             solicitacao = self.get_queryset()       
             serializer = self.serializer_class(solicitacao, many=True)
             
-            return Response({"Bem vindo usuario ": serializer.data}, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         except:
             return Response({"Sao necessarias credenciais de usario"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -242,7 +242,7 @@ class LoteAtribicaoListCreateView(generics.ListCreateAPIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"Atribuicao de lote feita com sucesso! ": serializer.data}, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                  return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
@@ -300,7 +300,7 @@ class HistoricoLoteListView(generics.ListAPIView):
             historico = self.get_queryset()
             serializer = self.serializer_class(historico, many=True)
 
-            return Response({"Bem vindo!":serializer.data}, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
             
         except :
                 return Response({"Sao necessarias credenciais de usario!"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -317,7 +317,7 @@ class HistoricoLoteCreateView(generics.ListCreateAPIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({"Historico Criado com sucesso":serializer.data}, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             
             else:
                  return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
@@ -344,7 +344,7 @@ class HistoricoLoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         serializer = self.serializer_class(historico, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"Historico do Lote Alterado com sucesso:": serializer.data}, status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
