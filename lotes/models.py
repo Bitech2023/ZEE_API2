@@ -75,6 +75,24 @@ class LoteAtribuicaoModel(globalModel):
      duracao = models.CharField(max_length=10 , default='Em meses')
 
 
+class pagamento_atribuicao(globalModel):
+     option_status = [
+          ("pago","Pago"),
+          ("pendente","Pendente"),
+          ("cancelado","cancelado")
+     ]
+     atribuicao_id = models.ForeignKey(LoteAtribuicaoModel, on_delete=models.CASCADE)
+     data_do_pagamento = models.DateField(auto_now=True)
+     valor_do_pagamento = models.DecimalField(max_digits=10, decimal_places=2)
+     numero_de_referencia = models.IntegerField()
+     status_do_pagamento = models.CharField(choices=option_status,default="pendente", max_length=50) 
+
+
+class LocalizacaoLoteModel(globalModel):
+     latitude = models.CharField(max_length=9, null=True)
+     longitude = models.CharField(max_length=9, null=True) 
+
+
 class HistoricoLoteModel(globalModel):
      nif_empresa = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE)
      numero_lote = models.ForeignKey(LoteModel, on_delete=models.CASCADE)

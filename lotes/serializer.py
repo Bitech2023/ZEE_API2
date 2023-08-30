@@ -2,12 +2,11 @@ from .models import *
 from rest_framework import serializers
 
 
-
 class LocalizacaoLoteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = LocalizacaoLoteModel
         fields = "__all__"
+
 
 class LoteSerializer(serializers.ModelSerializer):
      localizacao = serializers.SerializerMethodField()
@@ -28,6 +27,7 @@ class  LoteSolicitacaoSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoteSolicitacaoModel
         fields = "__all__"
+
 
 class LoteAtribuicaoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,4 +52,10 @@ class DescricaoSerializer(serializers.ModelSerializer):
 class LoteEmpresaSerializer( serializers.ModelSerializer):
     class Meta:
         model = LoteEmpresaModel
+        fields = "__all__"
+
+
+class PagamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = pagamento_atribuicao
         fields = "__all__"

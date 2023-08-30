@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     # "app",
     "empresas",
     "lotes",  
-    "pagamentos",
+    # "pagamentos",
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',

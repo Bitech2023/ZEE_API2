@@ -11,7 +11,6 @@ urlpatterns = [
     path('api/auth/', TokenObtainPairView.as_view()),
     path('api/', include("lotes.urls")),
     path('api/', include("empresas.urls")),
-    path('api/', include("pagamentos.urls")),
     path('api/users/', include("users.urls")),
  
 
