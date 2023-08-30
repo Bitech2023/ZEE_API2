@@ -9,14 +9,14 @@ class LocalizacaoLoteSerializer(serializers.ModelSerializer):
 
 
 class LoteSerializer(serializers.ModelSerializer):
-     localizacao = serializers.SerializerMethodField()
-     class Meta:
+    localizacao = serializers.SerializerMethodField()
+    class Meta:
         model = LoteModel
         fields = "__all__"
-     def get_localizacao(self, obj):
+    def get_localizacao(self, obj):
         try:
             # print(obj)
-            response = LocalizacaoLoteModel.objects.filter(loteID=obj)
+            response = LocalizacaoLoteModel.objects.filter(loteid=obj)
             print(response)
             return LocalizacaoLoteSerializer(response, many=True).data
         except KeyError:

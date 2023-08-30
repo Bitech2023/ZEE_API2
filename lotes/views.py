@@ -21,7 +21,7 @@ def get(self, request):
 class PagamentoCreateView(generics.CreateAPIView):
     queryset = pagamento_atribuicao.objects.all()
     serializer_class = PagamentoSerializer
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminUser]
 
     def post(self,request):
@@ -50,8 +50,9 @@ class Index(APIView):
 class LoteListView(generics.ListAPIView):
     queryset = LoteModel.objects.all()
     serializer_class = LoteSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+
     def get(self, request):
         try:
             queryset = self.get_queryset()
@@ -60,6 +61,7 @@ class LoteListView(generics.ListAPIView):
             return Response( serializer.data, status=status.HTTP_200_OK)
             
         except Exception as e:
+            print(e)
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -92,8 +94,8 @@ class LoteCreateView(generics.ListCreateAPIView):
 class LoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
      queryset = LoteModel.objects.all()
      serializer_class = LoteSerializer
-     permission_classes = [IsAdminUser]
-     authentication_classes = [JWTAuthentication]
+    #  permission_classes = [IsAdminUser]
+    #  authentication_classes = [JWTAuthentication]
     
 
      def put(self, request, pk ):
@@ -144,8 +146,8 @@ class LocalizacaoLoteView(generics.ListCreateAPIView):
 class LoteSolicitacaoListView(generics.ListAPIView):
     queryset = LoteSolicitacaoModel.objects.all()
     serializer_class = LoteSolicitacaoSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [JWTAuthentication]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -161,8 +163,8 @@ class LoteSolicitacaoListView(generics.ListAPIView):
 class LoteSolicitacaoListCreate(generics.ListCreateAPIView):
     queryset = LoteSolicitacaoModel.objects.all()
     serializer_class = LoteSolicitacaoSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -182,8 +184,8 @@ class LoteSolicitacaoListCreate(generics.ListCreateAPIView):
 class LoteSolicitacaoDeleteUpdateView(generics.RetrieveUpdateDestroyAPIView):
     queryset = LoteSolicitacaoModel.objects.all()
     serializer_class = LoteSolicitacaoSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def put(self, request, pk, *args):
         try:
@@ -216,8 +218,8 @@ class LoteSolicitacaoDeleteUpdateView(generics.RetrieveUpdateDestroyAPIView):
 class LoteAtribicaoListView(generics.ListAPIView):
     queryset = LoteAtribuicaoModel.objects.all()
     serializer_class = LoteAtribuicaoSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    authentication_classes= [JWTAuthentication]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes= [JWTAuthentication]
 
     def get(self, request):
         try:
@@ -233,8 +235,8 @@ class LoteAtribicaoListView(generics.ListAPIView):
 class LoteAtribicaoListCreateView(generics.ListCreateAPIView):
     queryset = LoteAtribuicaoModel.objects.all()
     serializer_class = LoteAtribuicaoSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -255,8 +257,8 @@ class LoteAtribicaoListCreateView(generics.ListCreateAPIView):
 class LoteAtribuicaoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = LoteAtribuicaoModel.objects.all()
     serializer_class = LoteAtribuicaoSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def put(self, request, pk):
         try:
@@ -292,8 +294,8 @@ class LoteAtribuicaoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class HistoricoLoteListView(generics.ListAPIView):
     queryset = HistoricoLoteModel.objects.all()
     serializer_class = HistoricoLoteSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
     def get(self, request): 
         try:
@@ -309,8 +311,8 @@ class HistoricoLoteListView(generics.ListAPIView):
 class HistoricoLoteCreateView(generics.ListCreateAPIView):
     queryset = HistoricoLoteModel.objects.all()
     serializer_class = HistoricoLoteSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def post(self,request):
         try:
@@ -331,8 +333,8 @@ class HistoricoLoteCreateView(generics.ListCreateAPIView):
 class HistoricoLoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = HistoricoLoteModel.objects.all()
     serializer_class = HistoricoLoteSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def put(self, request, pk):
         try:
@@ -364,18 +366,18 @@ class HistoricoLoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class DescricaoListView(generics.ListAPIView):
     queryset = Descricaomodel.objects.all()
     serializer_class = DescricaoSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
 
 class LoteEmpresaListCreate(generics.ListCreateAPIView):
     queryset = LoteEmpresaModel.objects.all()
     serializer_class = LoteEmpresaSerializer
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 class LoteEmpresaRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = LoteEmpresaModel.objects.all()
     serializer_class = LoteEmpresaSerializer
-    # permission_classes = [IsAdminUser]
-    # authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]

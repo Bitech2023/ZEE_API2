@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from utils.defaultModel import globalModel
+from django.contrib.auth.hashers import make_password
 import uuid
 
 
@@ -17,12 +17,9 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
     
-    # password = models.CharField(max_length=128)
-
     # def save(self, *args, **kwargs):
-    #     # Ao salvar o usuário, podemos definir a senha usando 'make_password'
-    #     if self.password:
-    #         self.password = make_password(self.password)
+    #     if not self.pk:  # Se é um novo usuário sendo criado
+    #         self.password = make_password(self.password)  # Encripta a senha
     #     super().save(*args, **kwargs)
 
 

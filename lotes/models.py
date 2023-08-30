@@ -17,8 +17,6 @@ class LoteModel(globalModel):
      tipo =models.CharField(max_length=50,  null=False) 
      comprimento = models.IntegerField(default=00000)
      largura = models.IntegerField(default=00000)
-  
-
      imagem = models.ImageField(upload_to='static/images/lotes/', blank= True, null=True)
      valor_do_lote = models.DecimalField(decimal_places=2,max_digits=10, default=00000000)
      informacoes_de_infraestrutura = models.TextField()
@@ -98,7 +96,7 @@ class HistoricoLoteModel(globalModel):
 class Descricaomodel(globalModel):
     descricao = models.TextField()
     detalhes = models.TextField()
-    loteId = models.ForeignKey(LoteModel, on_delete=models.CASCADE)
+    loteid = models.ForeignKey(LoteModel, on_delete=models.CASCADE)
 
 
       
