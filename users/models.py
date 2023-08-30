@@ -17,10 +17,10 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
     
-    # def save(self, *args, **kwargs):
-    #     if not self.pk:  # Se é um novo usuário sendo criado
-    #         self.password = make_password(self.password)  # Encripta a senha
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+         if not self.pk:    #Se é um novo usuário sendo criado
+            self.password = make_password(self.password)   #Encripta a senha
+            super().save(*args, **kwargs)
 
 
     groups = models.ManyToManyField(
