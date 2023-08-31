@@ -9,7 +9,7 @@ class LocalizacaoLoteSerializer(serializers.ModelSerializer):
 
 
 class LoteSerializer(serializers.ModelSerializer):
-    localizacao = serializers.SerializerMethodField()
+    localizacao = LocalizacaoLoteSerializer(many=True, read_only=True)
     class Meta:
         model = LoteModel
         fields = "__all__"
@@ -21,10 +21,11 @@ class LoteSerializer(serializers.ModelSerializer):
             return LocalizacaoLoteSerializer(response, many=True).data
         except KeyError:
             return "An error ocurred"
+    
+
 
 
 class  LoteSolicitacaoSerializer(serializers.ModelSerializer):
-    localizacao = serializers.SerializerMethodField()
     class Meta:
         model = LoteSolicitacaoModel
         fields = "__all__"

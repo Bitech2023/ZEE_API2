@@ -13,26 +13,29 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
 
 class UserListView(generics.ListAPIView):
-   permission_classes = [IsAdminUser]
-   authentication_classes = [JWTAuthentication]
-   queryset = User.objects.all()
-   serializer_class = UserSerializer
+#    permission_classes = [IsAdminUser]
+#    authentication_classes = [JWTAuthentication]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-   def get(self, request ):
-       try:
-         
-          if not request.user.is_staff:
-                 return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
-                           
-          queryset = self.get_queryset()
-         
-          serializer = self.serializer_class(queryset,many=True)
-          print(serializer.data)
-         
-          return Response(serializer.data)
-       
-       except:
-          return Response("Erro!")
+    def get(self, request):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.serializer_class(queryset, many=True)
+            
+
+            for item in serializer.data:
+                if item['foto']:
+                    item['foto'] = request.build_absolute_uri(item['foto'])
+            
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
        
 class UserCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -48,9 +51,11 @@ class UserCreateView(generics.ListCreateAPIView):
             serializer = self.serializer_class(data=request.data)
             
             if serializer.is_valid():
+                
                 # Encripta a senha antes de salvar
                 serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
                 serializer.save()
+                print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

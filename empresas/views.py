@@ -18,6 +18,12 @@ class EmpresaListView(generics.ListAPIView):
         try:
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
+            
+
+            for item in serializer.data:
+                if item['logo']:
+                    item['logo'] = request.build_absolute_uri(item['logo'])
+            
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         
@@ -87,13 +93,19 @@ class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         return Response(f"Empresa:  {empresa} excluida com sucesso",  status=status.HTTP_204_NO_CONTENT)
 
 
-class FuncionariosView(generics.ListCreateAPIView):
+class FuncionariosCreateView(generics.ListCreateAPIView):
     queryset = FuncionariosModel.objects.all()
     serializer_class = FuncionariosSerializer
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
 
-#Notificacao para as Empresas gerais e especificas
+class FuncionariosListView(generics.ListAPIView):
+    queryset = FuncionariosModel.objects.all()
+    serializer_class = FuncionariosSerializer
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+
+
 class NotificacaoGeralCreateView(generics.CreateAPIView):
     queryset = NotificacaoGeralModel.objects.all()
     serializer_class = NotificacaoGeralSerializer

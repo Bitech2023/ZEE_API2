@@ -3,7 +3,7 @@ from .serializer import *
 from .models import *
 from rest_framework.views import APIView
 from rest_framework import generics
-from rest_framework.permissions import  IsAdminUser,IsAuthenticated,IsAuthenticatedOrReadOnly, DjangoObjectPermissions
+from rest_framework.permissions import  IsAdminUser,IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework import status
@@ -57,6 +57,10 @@ class LoteListView(generics.ListAPIView):
         try:
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
+
+            for item in serializer.data:
+                if item['imagem']:
+                    item['imagem'] = request.build_absolute_uri(item['imagem'])
             
             return Response( serializer.data, status=status.HTTP_200_OK)
             
@@ -69,8 +73,8 @@ class LoteListView(generics.ListAPIView):
 class LoteCreateView(generics.ListCreateAPIView):
     queryset = LoteModel.objects.all()
     serializer_class = LoteSerializer
-    # permission_classes = [IsAdminUser, DjangoObjectPermissions]
-    # authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]
 
 
     def post(self, request):
