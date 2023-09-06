@@ -5,23 +5,20 @@ import uuid
 
 
 class User(AbstractUser):
-    
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     bi =  models.CharField(max_length=15, blank=True, null=True)
     telefone = models.IntegerField(blank=True, null=True)
     data_nascimento =models.DateTimeField(auto_now_add=True)
-    foto = models.ImageField(upload_to="static/images/users/", blank= True, null=True)
+    foto = models.ImageField(upload_to="static/imagens/users/", blank= True, null=True)
+    # nivel = models.CharField(choices=option, default='Usuario', max_length=125)
+
 
     def __str__(self):
-        return self.username
+        return self.email
     
-    # def save(self, *args, **kwargs):
-    #      if not self.pk:    
-    #         self.password = make_password(self.password)   
-    #         super().save(*args, **kwargs)
-
 
     groups = models.ManyToManyField(
     'auth.Group',

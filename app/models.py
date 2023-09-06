@@ -73,7 +73,7 @@ class Perfil(globalModel):
      username = models.CharField(max_length=50, null=False)
      descricao =models.TextField()
      nif = models.CharField(max_length=15)
-     logo = models.ImageField(upload_to='static/images/Logo/', blank= True, null=True)
+     logo = models.ImageField(upload_to='static/imagens/Logo/', blank= True, null=True)
      documentos = models.PositiveSmallIntegerField()
      email = models.EmailField(unique=True,null=False)
      telefone =models.IntegerField() 

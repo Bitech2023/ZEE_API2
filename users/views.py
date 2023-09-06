@@ -8,11 +8,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password  
 
 
-class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-class UserListView(generics.ListAPIView):
+class UserListCreateView(generics.ListCreateAPIView):
 #    permission_classes = [IsAdminUser]
 #    authentication_classes = [JWTAuthentication]
     queryset = User.objects.all()
@@ -36,25 +32,17 @@ class UserListView(generics.ListAPIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-       
-class UserCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
-   
     def post(self, request):
         try:
             # if not request.user.is_staff:
             #      return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
                       
             serializer = self.serializer_class(data=request.data)
-            
+        
             if serializer.is_valid():
-                
-                # Encripta a senha antes de salvar
                 serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
                 serializer.save()
+
                 print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
@@ -63,5 +51,66 @@ class UserCreateView(generics.ListCreateAPIView):
         except Exception as error:
             print(error)
             return Response({"Erro no servidor ao criar novo usuário!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+   
+
+class UserRetrieveView(generics.RetrieveAPIView):
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer    
+
+    def retrieve(self, request, pk):
+        try:
+            # Filtrar o usuário pelo ID
+            user = self.queryset.get(id=pk)
+            
+            # Serializar o único objeto de usuário
+            serializer = self.serializer_class(user)
+            
+            # Construir a URL completa da foto
+            if serializer.data['foto']:
+                serializer.data['foto'] = request.build_absolute_uri(serializer.data['foto'])
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except User.DoesNotExist:
+            return Response({"message": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class UserUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def put(self, request, pk):
+        try:
+            user = User.objects.get(id=pk)
+        
+        except User.DoesNotExist:
+            return Response("Usuario nao encontrado!", status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+        serializer = self.serializer_class(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save
+            Response("Usuario Actualizado com sucesso", status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request,  pk):
+        try:
+            user = User.objects.get(id=pk)
+        except User.DoesNotExist:
+            return Response("Usuario nao encontrado!", status=status.HTTP_404_NOT_FOUND)
+        user.delete()
+        return Response("Usuario deletado com sucesso", status=status.HTTP_204_NO_CONTENT)
 
 

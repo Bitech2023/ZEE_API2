@@ -1,13 +1,17 @@
-from django.urls import path,include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
 from .views import *
-from rest_framework_simplejwt.views import TokenObtainPairView
+
 urlpatterns = [
 
-    #    path('auth/',include('rest_framework.urls', namespace = 'rest_framework')),
-        #  path('create/', UserListCreateAPIView.as_view(),name="User-List-Create"),
-         path('', UserListView.as_view(), name="User"),
-         path('create/', UserCreateView.as_view(), name="User-Create"),
-        # path('', UserListCreateAPIView.as_view(), name='usuario-list-create'),
-         path('update/<str:pk>/', UserRetrieveUpdateDestroyAPIView.as_view(), name='usuario-retrieve-update-destroy'),
+
+
+         path('', UserListCreateView.as_view()),
+         path('<uuid:pk>',UserRetrieveView.as_view(), name="User-List-One"),
+        #  path('create/', UserCreateView.as_view(), name="User-Criar"),
+         path('update/<uuid:pk>', UserUpdateDelete.as_view(), name='usuario-retrieve-update-destroy'),
 
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

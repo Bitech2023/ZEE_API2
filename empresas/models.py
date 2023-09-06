@@ -2,21 +2,39 @@ from django.db import models
 from utils.defaultModel import globalModel
 
 
-
 class EmpresaModel(globalModel):
-    nome_da_empresa =  models.CharField(max_length=55, null=False)
-    numero_de_funcionarios =  models.IntegerField(null=True)
+    nome =  models.CharField(max_length=55, null=False)
+    funcionarios =  models.IntegerField(null=True)
     nif = models.CharField(max_length=15, null=False)
-    dono_da_empresa = models.CharField(max_length=55 , null=False)
-    sector_actividade =  models.CharField(max_length=55, null=False)
+    # dono = models.ForeignKey(DonoEmpresaModel, on_delete=models.CASCADE)
     logo  = models.ImageField(upload_to="static/imagens/logo/", blank= True, null=True)
-    email_da_empresa = models.EmailField(unique=True)
+    email = models.EmailField(unique=True)
     telefone = models.IntegerField(unique=True, default=927860898)
- 
+    detalhes = models.TextField()
+
 
     def __str__(self):
         return str(self.nif)
     
+
+class SectorEmpresaModel(globalModel):
+    actividade = models.CharField(max_length=125)
+
+    def __str__(self):
+        return self.actividade
+
+
+class DocumentosModel(globalModel):
+    descricao = models.CharField(max_length=55)
+    
+    def __str__(self):
+        return str(self.descricao)
+
+class DocumentosEmpresaModel(globalModel):
+    documentos = models.ForeignKey(DocumentosModel, on_delete=models.CASCADE)
+    empresa = models.ForeignKey(EmpresaModel, related_name='EmpresaModel', on_delete=models.CASCADE)
+    caminho = models.FileField(upload_to='static/documentos/pdf/')
+ 
 
 class FuncionariosModel(globalModel):
 
@@ -35,14 +53,12 @@ class FuncionariosModel(globalModel):
     email = models.EmailField(unique=True)
     numero_telefone = models.IntegerField(unique=True, default=927860898,null=False)
     foto = models.ImageField(upload_to="static/imagens/fotos/", blank=True,null=True)
-    empresaId = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE)
+    empresa = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE)
 
 
     def __str__(self):  
         return self.bi
 
-
- 
 
 class NotificacaoGeralModel(globalModel):
     option_prioridade =[

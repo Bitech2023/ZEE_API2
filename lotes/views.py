@@ -22,7 +22,7 @@ class PagamentoCreateView(generics.CreateAPIView):
     queryset = pagamento_atribuicao.objects.all()
     serializer_class = PagamentoSerializer
     # authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
     def post(self,request):
         try:
@@ -70,12 +70,96 @@ class LoteListView(generics.ListAPIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class LoteRetrieveView(generics.RetrieveAPIView):
+    queryset = LoteModel.objects.all()
+    serializer_class = LoteSerializer
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+
+
+    def retrieve(self, request, *args, pk):
+        try:
+            lote = self.queryset.get(id=pk)
+            serializer = self.serializer_class(lote)
+
+            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        
+        except LoteModel.DoesNotExist:
+            return Response({"message": "Lote não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class LoteCreateView(generics.ListCreateAPIView):
     queryset = LoteModel.objects.all()
     serializer_class = LoteSerializer
     permission_classes = [IsAdminUser]
     authentication_classes = [JWTAuthentication]
 
+
+    def post(self, request, *args, **kwargs):
+        try:
+            if not request.user.is_staff:
+                return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
+
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+
+                serializer.save()
+                print(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class LoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = LoteModel.objects.all()
+    serializer_class = LoteSerializer
+    #  permission_classes = [IsAdminUser]
+    #  authentication_classes = [JWTAuthentication]
+
+    def put(self, request, pk ):
+         
+         try:
+          lote = LoteModel.objects.get(id=pk)  
+          loteup = lote.identificadordolote
+
+         except LoteModel.DoesNotExist:
+            
+            return Response(f"Lote com número {loteup} não encontrado.", status=status.HTTP_404_NOT_FOUND)
+
+         serializer = self.serializer_class(lote, data=request.data)
+         if serializer.is_valid():
+              serializer.save()
+              return Response(f"Informacoes do lote n {lote.identificadordolote} actualizadas com sucesso!", status=status.HTTP_200_OK)
+         else:
+          return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+         
+    def delete(self, request, pk):
+         if not request.user.is_staff:
+            return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
+            
+         try:
+          lote = LoteModel.objects.get(id=pk)  
+          loteup  = lote.identificadordolote
+         except LoteModel.DoesNotExist:
+            return Response(f"Lote com o número {loteup} não encontrado.", status=status.HTTP_404_NOT_FOUND)
+    
+         lote.delete()
+
+         return Response(f"lote n {lote.identificadordolote} excluido com sucesso",  status=status.HTTP_204_NO_CONTENT)
+        
+
+class TipoLoteCreateListView(generics.ListCreateAPIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = TipoLote.objects.all()
+    serializer_class = TipoLoteSerializer
 
     def post(self, request):
         try:
@@ -92,59 +176,238 @@ class LoteCreateView(generics.ListCreateAPIView):
         except Exception as e:
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        
-        
-class LoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-     queryset = LoteModel.objects.all()
-     serializer_class = LoteSerializer
-    #  permission_classes = [IsAdminUser]
-    #  authentication_classes = [JWTAuthentication]
-    
 
-     def put(self, request, pk ):
+
+class TipoLoteUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = TipoLote.objects.all()
+    serializer_class = TipoLoteSerializer
+
+    def put(self, request, pk ):
          
          try:
-          lote = LoteModel.objects.get(id=pk)  
-          loteup = lote.numero_do_lote
+          tipolote = TipoLote.objects.get(id=pk)  
+
          except LoteModel.DoesNotExist:
             
-            return Response(f"Lote com número {loteup} não encontrado.", status=status.HTTP_404_NOT_FOUND)
+            return Response(f"Não encontrado.", status=status.HTTP_404_NOT_FOUND)
 
-
-         if not request.user.is_staff:
-            return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
-         
-         
-         serializer = self.serializer_class(lote, data=request.data)
+         serializer = self.serializer_class(tipolote, data=request.data)
          if serializer.is_valid():
               serializer.save()
-              return Response(f"Informacoes do lote n {lote.numero_do_lote} actualizadas com sucesso!", status=status.HTTP_200_OK)
+              return Response(f"Informacoes actualizadas com sucesso!", status=status.HTTP_200_OK)
+         
+         else:
+          return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk):
+        try:
+            tipolote = TipoLote.objects.get(id=pk)
+        
+        except TipoLote.DoesNotExist:
+            return Response("Nao Encontrado", status=status.HTTP_404_NOT_FOUND)
+        
+        tipolote.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DescricaoCreateListView(generics.ListCreateAPIView):
+
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = Descricaomodel.objects.all()
+    serializer_class = DescricaoSerializer
+
+
+    def post(self, request):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({"message1": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class descricaoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = Descricaomodel.objects.all()
+    serializer_class = DescricaoSerializer
+
+    def put(self, request, pk ):
+         
+         try:
+          descricao = Descricaomodel.objects.get(id=pk)  
+
+         except Descricaomodel.DoesNotExist:
+            
+            return Response(f"Não encontrado.", status=status.HTTP_404_NOT_FOUND)
+
+         serializer = self.serializer_class(descricao, data=request.data)
+         if serializer.is_valid():
+              serializer.save()
+              return Response(f"Informacoes actualizadas com sucesso!", status=status.HTTP_200_OK)
+         
          else:
           return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
-     def delete(self, request, pk):
-                  
-         try:
-          lote = LoteModel.objects.get(id=pk)  
-          loteup  = lote.numero_do_lote
-         except LoteModel.DoesNotExist:
-            return Response(f"Lote com o número {loteup} não encontrado.", status=status.HTTP_404_NOT_FOUND)
-
-
-         if not request.user.is_staff:
-            return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
          
-         
-         lote.delete()
-
-         return Response(f"lote n {lote.numero_do_lote} excluido com sucesso",  status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk):
+        try:
+            descricao = Descricaomodel.objects.get(id=pk)
         
+        except TipoLote.DoesNotExist:
+            return Response("Nao Encontrado", status=status.HTTP_404_NOT_FOUND)
+        
+        descricao.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-     
+
+class DetalhesCreateListView(generics.ListCreateAPIView):
+
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = DetalhesModel.objects.all()
+    serializer_class = DetalhesSerializer
+
+
+    def post(self, request):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({"message1": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class DetalhesUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = DetalhesModel.objects.all()
+    serializer_class = DetalhesSerializer
+
+    def put(self, request, pk ):
+         
+         try:
+          descricao = DetalhesModel.objects.get(id=pk)  
+
+         except DetalhesModel.DoesNotExist:
+            
+            return Response(f"Não encontrado.", status=status.HTTP_404_NOT_FOUND)
+
+         serializer = self.serializer_class(descricao, data=request.data)
+         if serializer.is_valid():
+              serializer.save()
+              return Response(f"Informacoes actualizadas com sucesso!", status=status.HTTP_200_OK)
+         
+         else:
+          return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+         
+         
+    def delete(self, request, pk):
+        try:
+            descricao = Descricaomodel.objects.get(id=pk)
+        
+        except TipoLote.DoesNotExist:
+            return Response("Nao Encontrado", status=status.HTTP_404_NOT_FOUND)
+        
+        descricao.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
 class LocalizacaoLoteView(generics.ListCreateAPIView):
     queryset = LocalizacaoLoteModel.objects.all()
     serializer_class = LocalizacaoLoteSerializer
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
+
+
+    def post(self, request, *args, **kwargs):
+        try:
+            if not request.user.is_staff:
+                return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
+
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+
+                serializer.save()
+                print(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class LocalizacaoLoteretrieveView(generics.RetrieveAPIView):
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
+    queryset = LocalizacaoLoteModel.objects.all()
+    serializer_class = LocalizacaoLoteSerializer
+
+    def retrieve(self, request, *args, pk):
+        try:
+            localizacao = self.queryset.get(id=pk)
+            serializer = self.serializer_class(localizacao)
+
+            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        
+        except LoteModel.DoesNotExist:
+            return Response({"message": "Localizacao não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(e)
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+
+class LocalizacaoLoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
+    queryset = LocalizacaoLoteModel.objects.all()
+    serializer_class = LocalizacaoLoteSerializer
+
+
+    def put(self, request, pk):
+        try:
+            localizacao = LocalizacaoLoteModel.objects.get(id=pk)
+
+        except LocalizacaoLoteModel.DoesNotExist:
+                return Response("Localizacao nao encontrada", status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.serializer_class(localizacao, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response("Informacoes Actualizadas com sucesso!", status=status.HTTP_202_ACCEPTED)
+        
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+    def delete(self, request, pk):
+        try:
+            localizacao = LocalizacaoLoteModel.objects.get(id=pk)
+        
+        except LocalizacaoLoteModel.DoesNotExist:
+                return Response("Localizacao nao encontrada", status=status.HTTP_404_NOT_FOUND)
+        
+        localizacao.delete()
+        return Response("Eliminado Com Sucesso", status=status.HTTP_204_NO_CONTENT)
 
 
 class LoteSolicitacaoListView(generics.ListAPIView):
@@ -152,6 +415,7 @@ class LoteSolicitacaoListView(generics.ListAPIView):
     serializer_class = LoteSolicitacaoSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
     # authentication_classes = [JWTAuthentication]
+
 
     def get(self, request, *args, **kwargs):
         try:
@@ -162,6 +426,26 @@ class LoteSolicitacaoListView(generics.ListAPIView):
         except:
             return Response({"Sao necessarias credenciais de usario"}, status=status.HTTP_401_UNAUTHORIZED)
 
+
+class LoteSolicitacaoRetrieveView(generics.RetrieveAPIView):
+    queryset = LoteSolicitacaoModel.objects.all()
+    serializer_class = LoteSolicitacaoSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [JWTAuthentication]   
+
+    def retrieve(self, request, *args, pk):
+        try:
+            lote = self.queryset.get(id=pk)
+            serializer = self.serializer_class(lote)
+
+            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        
+        except LoteModel.DoesNotExist:
+            return Response({"message": "Solicitacao não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 
 class LoteSolicitacaoListCreate(generics.ListCreateAPIView):
@@ -219,6 +503,37 @@ class LoteSolicitacaoDeleteUpdateView(generics.RetrieveUpdateDestroyAPIView):
         return Response(f"Solicitacao do lote com o {solicitacao.id}  eliminda com sucesso!")    
 
 
+
+class FinalidadeListCrateView(generics.ListCreateAPIView):
+    queryset = Finalidademodel.objects.all()
+    serializer_class = FinalidadeSerializer
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
+
+
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()       
+            serializer = self.serializer_class(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except:
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+
+    def post(self,request):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({" Feito com sucesso"},status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 class LoteAtribicaoListView(generics.ListAPIView):
     queryset = LoteAtribuicaoModel.objects.all()
     serializer_class = LoteAtribuicaoSerializer
@@ -274,6 +589,7 @@ class LoteAtribuicaoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         
 
         serializer = self.serializer_class(atribuicao, data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response("Atribuicao do lote com o id  editada com sucesso", status=status.HTTP_202_ACCEPTED)
@@ -310,6 +626,8 @@ class HistoricoLoteListView(generics.ListAPIView):
             
         except :
                 return Response({"Sao necessarias credenciais de usario!"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 
 
 class HistoricoLoteCreateView(generics.ListCreateAPIView):
@@ -385,3 +703,4 @@ class LoteEmpresaRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = LoteEmpresaSerializer
     permission_classes = [IsAdminUser]
     authentication_classes = [JWTAuthentication]
+
