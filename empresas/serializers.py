@@ -8,35 +8,39 @@ class DocumentosSerializer(serializers.ModelSerializer):
         model = DocumentosModel
         fields = "__all__"  
 
-class EmpresaSerializer(serializers.ModelSerializer):
-    
-
-    class Meta:
-        model = EmpresaModel
-        fields = "__all__"
 
 class DocumentoEmpresaSerializer(serializers.ModelSerializer):
-    empresa = EmpresaSerializer()
-    documentos = DocumentosSerializer()
+    # empresa = EmpresaSerializer()
+    # documentos = DocumentosSerializer()
     class Meta:
         model = DocumentosEmpresaModel
         fields = "__all__"
 
 
+
+
+class ActividadeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SectorEmpresaModel
+        fields = "__all__"
+            
+
+class EmpresaSerializer(serializers.ModelSerializer):
+    actividade = ActividadeSerializer()
+    class Meta:
+        model = EmpresaModel
+        fields = "__all__"
+class NotificacaoGeralSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificacaoGeralModel
+        fields = "__all__"
 class FuncionariosSerializer(serializers.ModelSerializer):
     empresa = EmpresaSerializer(read_only=True)
     class Meta:
  
         model = FuncionariosModel
         fields = "__all__"
-
-
-
-class NotificacaoGeralSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = NotificacaoGeralModel
-        fields = "__all__"
-
 class NotificacaoEmpresaSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificacaoEmpresaModel

@@ -76,7 +76,7 @@ class EmpresaCreateView(generics.CreateAPIView):
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        
+
 class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = EmpresaModel.objects.all()
     serializer_class = EmpresaSerializer
@@ -86,18 +86,18 @@ class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, pk):
         try:
               empresa = EmpresaModel.objects.get(id=pk)
-  
+              empresanome = empresa.nome
 
         except EmpresaModel.DoesNotExist:
             
-            return Response(f"Empresa {empresa} não encontrada.", status=status.HTTP_404_NOT_FOUND)
+            return Response(f"Empresa {empresanome} não encontrada.", status=status.HTTP_404_NOT_FOUND)
         
         serializer = self.serializer_class(empresa, request.data)
 
         if serializer.is_valid():
             serializer.save()
 
-            return Response(f"Informacoes da Empresa  {empresa.nome_da_empresa},"" actualizadas com sucesso!", status=status.HTTP_200_OK)
+            return Response(f"Informacoes da Empresa  {empresanome},"" actualizadas com sucesso!", status=status.HTTP_200_OK)
         
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -106,14 +106,14 @@ class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, pk):
         try:
               empresa = EmpresaModel.objects.get(id=pk)
-              
+              empresanome = empresanome
 
         except EmpresaModel.DoesNotExist:
-            return Response(f"Empresa {empresa} não encontrado.", status=status.HTTP_404_NOT_FOUND)
+            return Response(f"Empresa: {empresanome} não encontrado.", status=status.HTTP_404_NOT_FOUND)
         
         empresa.delete()
 
-        return Response(f"Empresa:  {empresa} excluida com sucesso",  status=status.HTTP_204_NO_CONTENT)
+        return Response(f"Empresa:  {empresanome} excluida com sucesso",  status=status.HTTP_204_NO_CONTENT)
 
 
 
@@ -194,6 +194,7 @@ class DocumentoEmpresaListCreateView(generics.ListCreateAPIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         except Exception as e:
+            print(e)
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         

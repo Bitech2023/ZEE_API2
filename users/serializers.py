@@ -1,16 +1,56 @@
 from rest_framework import serializers
+from empresas.serializers import EmpresaSerializer
 from .models import *
+from empresas.serializers import ActividadeSerializer
+class UserEmpresaSerializer(serializers.ModelSerializer):
+    empresa = EmpresaSerializer()
 
+    class Meta:
+            model = UserEmpresaModel
+            fields = '__all__'
 
+    def create(self, validated_data):
+        empresa_data = validated_data.pop('empresa')
+
+        if empresa_data:
+            empresa, created = EmpresaModel.objects.get_or_create(**empresa_data)
+            validated_data['empresa'] = empresa
+
+        # empresa, created = EmpresaModel.objects.get_or_create(**empresa_data)
+        user_empresa = UserEmpresaModel.objects.create(**validated_data)
+
+        return user_empresa
+    
+    
 class UserSerializer(serializers.ModelSerializer):
+        empresas = serializers.SerializerMethodField()
         class Meta:
             model = User
-            fields = "__all__"
 
-            # def create(self, validated_data):
-            # # Encripta a senha antes de criar o usuário
-            #     password = validated_data.pop('password')
-            #     user = User(**validated_data)
-            #     user.set_password(password)
-            #     user.save()
-            #     return user
+            fields = ['id','bi','telefone','data_nascimento','foto', 'nivel','email','username','first_name','last_name','empresas','password']
+                    
+
+        def get_empresas(self, obj):  
+            try:
+                empresaObject = UserEmpresaModel.objects.filter(user=obj)
+                if empresaObject:
+                     return UserEmpresaSerializer(empresaObject, many=True).data[0]
+                else:
+                     return{'message':'empty'}
+            except Exception as error:
+                return {'error': str(error)}
+
+# class PostuserSerializer(serializers.ModelSerializer):
+#      class Meta:
+#           model = User
+#           fields = ['id','bi','telefone','data_nascimento','foto','nivelid','email','username','first_name','last_name','empresas','password']
+
+
+class NivelSerializer(serializers.ModelSerializer):
+     class Meta:
+          model = NivelModel
+          fields = "__all__"
+
+          
+
+    

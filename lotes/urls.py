@@ -43,7 +43,7 @@ urlpatterns =[
     path('lote/descricao', DescricaoListView.as_view(), name="Descricao_Lote" ),
 
     path('lote/empresa', LoteEmpresaListCreate.as_view(), name="Lote_Empresa_Criar_listar"),
-    path('lote/empresa/<uuid:pk>/', LoteEmpresaRetrieveUpdateDestroy.as_view(), name="Lote_Empresa_Actualizar_Destruir"),
+    path('lote/empresa/update/<uuid:pk>', LoteEmpresaRetrieveUpdateDestroy.as_view(), name="Lote_Empresa_Actualizar_Destruir"),
 
 
     path("pagamentos",LoteListView.as_view(), name="pagamento_Lista"),

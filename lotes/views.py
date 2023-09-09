@@ -94,8 +94,8 @@ class LoteRetrieveView(generics.RetrieveAPIView):
 class LoteCreateView(generics.ListCreateAPIView):
     queryset = LoteModel.objects.all()
     serializer_class = LoteSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
 
     def post(self, request, *args, **kwargs):
@@ -120,18 +120,18 @@ class LoteCreateView(generics.ListCreateAPIView):
 class LoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = LoteModel.objects.all()
     serializer_class = LoteSerializer
-    #  permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
     #  authentication_classes = [JWTAuthentication]
 
     def put(self, request, pk ):
          
          try:
           lote = LoteModel.objects.get(id=pk)  
-          loteup = lote.identificadordolote
+          loteid = lote.identificadordolote
 
          except LoteModel.DoesNotExist:
             
-            return Response(f"Lote com número {loteup} não encontrado.", status=status.HTTP_404_NOT_FOUND)
+            return Response(f"Lote com número {loteid} não encontrado.", status=status.HTTP_404_NOT_FOUND)
 
          serializer = self.serializer_class(lote, data=request.data)
          if serializer.is_valid():
@@ -146,9 +146,9 @@ class LoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             
          try:
           lote = LoteModel.objects.get(id=pk)  
-          loteup  = lote.identificadordolote
+          loteid  = lote.identificadordolote
          except LoteModel.DoesNotExist:
-            return Response(f"Lote com o número {loteup} não encontrado.", status=status.HTTP_404_NOT_FOUND)
+            return Response(f"Lote com o número {loteid} não encontrado.", status=status.HTTP_404_NOT_FOUND)
     
          lote.delete()
 
@@ -333,13 +333,20 @@ class LocalizacaoLoteView(generics.ListCreateAPIView):
     serializer_class = LocalizacaoLoteSerializer
     # permission_classes = [IsAdminUser]
     # authentication_classes = [JWTAuthentication]
-
-
+    def get(self, request ):
+        page_num = int(request.GET.get("page", 1))
+        limit_num = int(request.GET.get("limit", 10))
+        start_num = (page_num - 1) * limit_num
+        end_num = limit_num * page_num
+        serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
+        return Response({
+            "points": serializer.data
+        })
     def post(self, request, *args, **kwargs):
         try:
             if not request.user.is_staff:
                 return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
-
+            print(request.data)
             serializer = self.get_serializer(data=request.data)
             if serializer.is_valid():
 
@@ -695,12 +702,12 @@ class DescricaoListView(generics.ListAPIView):
 class LoteEmpresaListCreate(generics.ListCreateAPIView):
     queryset = LoteEmpresaModel.objects.all()
     serializer_class = LoteEmpresaSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
 class LoteEmpresaRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = LoteEmpresaModel.objects.all()
     serializer_class = LoteEmpresaSerializer
-    permission_classes = [IsAdminUser]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 

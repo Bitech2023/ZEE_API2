@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='lotemodel',
             name='imagem',
-            field=models.ImageField(default=1, upload_to='static/imagens/lotes/'),
+            field=models.ImageField(default=1, upload_to='imagens/lotes/'),
             preserve_default=False,
         ),
     ]
