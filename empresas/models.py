@@ -20,10 +20,8 @@ class EmpresaModel(globalModel):
     detalhes = models.TextField()
     actividade = models.ForeignKey(SectorEmpresaModel, on_delete=models.CASCADE,null=False)
     localizacaoLote = models.ForeignKey("lotes.LocalizacaoLoteModel", verbose_name=("Coordenadas dos lotes"), on_delete=models.CASCADE)
-    def __str__(self):
-        return str(self.nif)
     
-
+    
 class DocumentosModel(globalModel):
     descricao = models.CharField(max_length=55)
     

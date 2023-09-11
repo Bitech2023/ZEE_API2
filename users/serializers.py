@@ -40,17 +40,3 @@ class UserSerializer(serializers.ModelSerializer):
             except Exception as error:
                 return {'error': str(error)}
 
-# class PostuserSerializer(serializers.ModelSerializer):
-#      class Meta:
-#           model = User
-#           fields = ['id','bi','telefone','data_nascimento','foto','nivelid','email','username','first_name','last_name','empresas','password']
-
-
-class NivelSerializer(serializers.ModelSerializer):
-     class Meta:
-          model = NivelModel
-          fields = "__all__"
-
-          
-
-    

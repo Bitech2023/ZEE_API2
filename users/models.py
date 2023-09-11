@@ -6,11 +6,6 @@ from utils.defaultModel import globalModel
 import uuid
 
 
-class NivelModel(globalModel):
-
-    nivel = models.CharField(max_length=125)
-
-
 class User(AbstractUser):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
@@ -32,11 +27,6 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
     
-class UserEmpresaModel(globalModel):
-    empresa = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
     groups = models.ManyToManyField(
     'auth.Group',
     related_name='auth_users',
@@ -47,3 +37,9 @@ class UserEmpresaModel(globalModel):
         'granted to each of their groups.'
     )
     )
+class UserEmpresaModel(globalModel):
+    empresa = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+

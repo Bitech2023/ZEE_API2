@@ -4,11 +4,9 @@ from .views import *
 app_name="Empresa_perfil"
 
 urlpatterns = [
-    path('empresas', EmpresaListView.as_view(), name="Empresas_Listar"),
-    path('empresas/localizacao', EmpresaListView.as_view(), name="Empresas_Listar"),
-    path('empresa/<uuid:pk>/', EmpresaRetrieveView.as_view(), name="Empresa_List_one"),
-    path('empresa/create', EmpresaCreateView.as_view(), name="Empresa_Criar"),
-    path('empresas/update/<uuid:pk>', EmpresaUpdateDeleteView.as_view(), name="Empresa_Editar_Criar"),
+    path('empresas', EmpresaListCreateView.as_view(), name="Empresas_Listar"),
+    # path('empresas/localizacao', EmpresaListView.as_view(), name="Empresas_Listar"),
+    path('empresas/<uuid:pk>', EmpresaUpdateDeleteView.as_view(), name="Empresa_Editar_Criar"),
 
 
     path('empresa/funcionarios',FuncionariosListView.as_view()),

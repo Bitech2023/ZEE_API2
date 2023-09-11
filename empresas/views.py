@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-class EmpresaListView(generics.ListAPIView):
+class EmpresaListCreateView(generics.ListCreateAPIView):
     queryset = EmpresaModel.objects.all()
     serializer_class = EmpresaSerializer
     # permission_classes = [IsAuthenticated]
@@ -31,19 +31,31 @@ class EmpresaListView(generics.ListAPIView):
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-class EmpresaRetrieveView(generics.RetrieveAPIView):
-
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = EmpresaModel.objects.all()
     serializer_class = EmpresaSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # authentication_classes = [JWTAuthentication]   
+    # permission_classes = [IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
 
     def retrieve(self, request, *args, pk):
         try:
             empresa = self.queryset.get(id=pk)
             
             serializer = self.serializer_class(empresa)
-            print(serializer.data['logo'])
+          
             for item in serializer.data:
                 if item['logo']:
                     item['logo'] = request.build_absolute_uri(item['logo'])
@@ -57,31 +69,6 @@ class EmpresaRetrieveView(generics.RetrieveAPIView):
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
-class EmpresaCreateView(generics.CreateAPIView):
-    queryset = EmpresaModel.objects.all()
-    serializer_class = EmpresaSerializer
-    # permission_classes = [IsAdminUser]
-    # authentication_classes = [JWTAuthentication]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            serializer = self.serializer_class(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-
-class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = EmpresaModel.objects.all()
-    serializer_class = EmpresaSerializer
-    # permission_classes = [IsAdminUser]
-    # authentication_classes = [JWTAuthentication]
 
     def put(self, request, pk):
         try:
@@ -123,6 +110,7 @@ class DocumentoListCreateView(generics.ListCreateAPIView):
     queryset = DocumentosModel.objects.all()
     serializer_class = DocumentosSerializer
 
+
     def post(self,request):
         try:
             serializer = self.serializer_class(data=request.data)
@@ -137,7 +125,6 @@ class DocumentoListCreateView(generics.ListCreateAPIView):
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
 
 
 class DocumnetoUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
