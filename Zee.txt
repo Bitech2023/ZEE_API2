@@ -1,0 +1,2 @@
+
+python manage.py graph_models -a -g -o ZeePlus.png para gerar um diagrama do banco de dados de forma automatica

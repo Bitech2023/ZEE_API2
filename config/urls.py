@@ -8,10 +8,10 @@ from lotes.views import *
 urlpatterns = [
     path('admin/',    admin.site.urls),
     path("index/"    ,Index.as_view(),name="index"),
-    path('api/auth/', TokenObtainPairView.as_view()),
-    path('api/', include("lotes.urls")),
-    path('api/', include("empresas.urls")),
-    path('api/users/', include("users.urls")),
+    path('auth/', TokenObtainPairView.as_view()),
+    path('lote/', include("lotes.urls")),
+    path('empresas/', include("empresas.urls")),
+    path('users/', include("users.urls")),
  
 
 ]

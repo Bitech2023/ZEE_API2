@@ -11,14 +11,22 @@ class LoteEmpresaSerializerMany( serializers.ModelSerializer):
         fields = "__all__"        
 
 class LoteSerializer(serializers.ModelSerializer):
-    # estabelecimento = serializers.SerializerMethodField()
-    # detalhe_id = serializers.UUIDField(source="descricaolote")
+    documentos = serializers.SerializerMethodField()
 
     class Meta:
         model = LoteModel
         fields = "__all__"
 
-    
+    def get_documentos(self,obj):
+        try:
+            documentosobj = DocumentoLoteModel.objects.filter(loteId=obj)
+            return DocumentoLoteSerializer(documentosobj,many=True).data   #DocumentoLoteModel(documentosobj,many=True) 
+        
+        except Exception as e:
+            print(e)
+            return Response("Error: ",str(e))
+
+
 class LoteEmpresaSerializer( serializers.ModelSerializer):
     empresa = EmpresaSerializer(read_only=True)
     lote = LoteSerializer(read_only=True)
@@ -28,6 +36,7 @@ class LoteEmpresaSerializer( serializers.ModelSerializer):
 
 class LocalizacaoLoteSerializer(serializers.ModelSerializer):
     lote = LoteSerializer()
+    
     class Meta:
         model = LocalizacaoLoteModel
         fields = "__all__"
@@ -113,31 +122,43 @@ class GeoLocalizacaoSerializer(serializers.ModelSerializer):
 #         return instance
 
 class TipoSerializer(serializers.ModelSerializer):
+    # finalidade = serializers.SerializerMethodField()
     class Meta:
-        model = TipoModel
+        model = TipoLoteModel
         fields = '__all__'
-        
+    # def get_finalidade(self, obj):
+    #     try:
+    #         tipoobj = FinalidadeSolicitacaoModel.objects.filter(tipoId=obj)
+    #         print(tipoobj)
+    #         return FinalidadeSolitacaoSerializer(tipoobj,many=True).data
+    #     except Exception as e:
+    #         print(e)        
 
 class LoteSolicitacaoSerializer(serializers.ModelSerializer):
-    
+    # loteId = serializers.SerializerMethodField()
+    finalidades = serializers.SerializerMethodField()
     class Meta:
         model = LoteSolicitacaoModel
         fields = '__all__'
-
+    
+    def get_finalidades(self, obj):
+        try:
+            finalidadesobj = FinalidadeSolicitacaoModel.objects.filter(solicitacao=obj)
+            
+            return FinalidadeSolitacaoSerializer(finalidadesobj,many=True).data
+        
+        except Exception as e:
+            print(e)
+            return Response("Error",str(e))
+    
 
 class FinalidadeSolitacaoSerializer(serializers.ModelSerializer):
-    tipoId = TipoSerializer() 
+    
     class Meta:
         model = FinalidadeSolicitacaoModel
         fields = '__all__'
-    
 
-class FinalidadeSerializer(serializers.ModelSerializer):
-    tipoId = TipoSerializer() 
-    # solicitacao = LoteSolicitacaoSerializer()
-    class Meta:
-        model = Finalidademodel
-        fields = "__all__"
+
 
 
 class LoteAtribuicaoSerializer(serializers.ModelSerializer):
@@ -179,7 +200,6 @@ class LoteDetalheSerializer(serializers.ModelSerializer):
     #     return descricao
 
     # def get_descricao(self, obj):
-
     #    descricaoObj = serializers.SerializerMethodField()
     #    return DescricaoSerializer(descricaoObj, many=True)
 
@@ -188,3 +208,17 @@ class PagamentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = pagamento_atribuicao
         fields = "__all__"
+
+
+class DocumentoTituloSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentoTituloModel
+        fields = "__all__"
+
+    
+class DocumentoLoteSerializer(serializers.ModelSerializer):
+    # loteId = LoteSerializer(read_only=True)
+    class Meta:
+        model = DocumentoLoteModel
+        fields = "__all__"
+

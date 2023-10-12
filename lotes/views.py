@@ -1,4 +1,6 @@
+import requests
 from users.models import User
+from utils.emailTitle import SOLICITACAO_LOTE
 from .serializer import *
 from .models import *
 from rest_framework.views import APIView
@@ -7,8 +9,11 @@ from rest_framework.permissions import  IsAdminUser,IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import QueryDict
-
+import random
+from math import floor
+from config.settings import MAPBOX_API_KEY
+from config.settings import EMAIL_HOST_USER
+from utils.senders import send_email
 class Index(APIView):
 
      def get(self, request):
@@ -30,10 +35,6 @@ class PagamentoListCreateView(generics.CreateAPIView):
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
 
-            for item in serializer.data:
-                if item['imagem']:
-                    item['imagem'] = request.build_absolute_uri(item['imagem'])
-            
             return Response( serializer.data, status=status.HTTP_200_OK)
             
         except Exception as e:
@@ -98,14 +99,16 @@ class PagamentoRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class LoteListCreateView(generics.ListCreateAPIView):
     queryset = LoteModel.objects.all()
     serializer_class = LoteSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         try:
-            queryset = self.get_queryset()
-            serializer = self.serializer_class(queryset, many=True)
-
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
             for item in serializer.data:
                 if item['imagem']:
                     item['imagem'] = request.build_absolute_uri(item['imagem'])
@@ -118,20 +121,29 @@ class LoteListCreateView(generics.ListCreateAPIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-    def post(self,request):
+    def generate_random_identifier(self):
+        number =random.randint( 100000,600000)
+        codigo = (f'LO{number}')
+        return codigo
+
+    def post(self, request):
         try:
+            # Se o campo codigoLote estiver vazio, gere um valor aleatório
+            if 'codigoLote' not in request.data or not request.data['codigoLote']:
+                # if request.data['codigoLote'] != 'codigoLote':
+                    request.data['codigoLote'] = self.generate_random_identifier()
+
             serializer = self.serializer_class(data=request.data)
+
             if serializer.is_valid():
                 serializer.save()
-                return Response({"Pagamento feito com sucesso"},status=status.HTTP_202_ACCEPTED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         except Exception as e:
             print(e)
-            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
      
 class LoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = LoteModel.objects.all()
@@ -149,7 +161,7 @@ class LoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             for item in serializer.data:
                 if item['imagem']:
                     item['imagem'] = request.build_absolute_uri(item['imagem'])
-
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
    
         except LoteModel.DoesNotExist:
@@ -165,7 +177,7 @@ class LoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
          
          try:
           lote = LoteModel.objects.get(id=pk)  
-          loteid = lote.identificadordolote
+          loteid = lote.codigoLote
 
          except LoteModel.DoesNotExist:
             
@@ -184,7 +196,7 @@ class LoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             
          try:
           lote = LoteModel.objects.get(id=pk)  
-          loteid  = lote.identificadordolote
+          loteid  = lote.codigoLote
          except LoteModel.DoesNotExist:
             return Response(f"Lote com o número {loteid} não encontrado.", status=status.HTTP_404_NOT_FOUND)
     
@@ -196,17 +208,17 @@ class LoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class TipoLoteCreateListView(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
-    queryset = TipoModel.objects.all()
+    queryset = TipoLoteModel.objects.all()
     serializer_class = TipoSerializer
 
     def get(self, request):
         try:
-            tipo = TipoModel.objects.get_queryset()
+            tipo = TipoLoteModel.objects.get_queryset()
             serializer = self.serializer_class(tipo, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         
-        except TipoModel.DoesNotExist:
+        except TipoLoteModel.DoesNotExist:
             return Response("Nao encontrado", status=status.HTTP_404_NOT_FOUND)  
               
         except Exception as e:
@@ -236,12 +248,12 @@ class TipoLoteCreateListView(generics.ListCreateAPIView):
 class TipoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
-    queryset = TipoModel.objects.all()
+    queryset = TipoLoteModel.objects.all()
     serializer_class = TipoSerializer
 
     def retrieve(self, request, *args,pk, **kwargs):
         try:
-            tipo = TipoModel.objects.filter(id=pk)
+            tipo = TipoLoteModel.objects.filter(id=pk)
 
             serializer = self.serializer_class(tipo, many=True)
 
@@ -259,9 +271,9 @@ class TipoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, pk ):
          
          try:
-          tipo = TipoModel.objects.get(id=pk)  
+          tipo = TipoLoteModel.objects.get(id=pk)  
 
-         except TipoModel.DoesNotExist:
+         except TipoLoteModel.DoesNotExist:
             
             return Response("Não encontrado.", status=status.HTTP_404_NOT_FOUND)
 
@@ -275,9 +287,9 @@ class TipoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
          
     def delete(self, request, pk):
         try:
-            tipo = TipoModel.objects.get(id=pk)
+            tipo = TipoLoteModel.objects.get(id=pk)
         
-        except TipoModel.DoesNotExist:
+        except TipoLoteModel.DoesNotExist:
             return Response("Nao Encontrado", status=status.HTTP_404_NOT_FOUND)
         
         tipo.delete()
@@ -290,9 +302,9 @@ class DescricaoCreateListView(generics.ListCreateAPIView):
     queryset = LoteDescricaoModel.objects.all()
     serializer_class = DescricaoSerializer
 
-    def get(self,request):
+    def get(self,request, pk):
         try:
-                instancia = LoteDescricaoModel.objects.filter()
+                instancia = LoteDescricaoModel.objects.filter(id=pk)
                 serializer = self.serializer_class(instancia, many=True)
                 return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
@@ -719,22 +731,24 @@ class GeoLocalizacaoLoteUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         return Response("Eliminado Com Sucesso", status=status.HTTP_204_NO_CONTENT)
 
 
-class LoteSolicitacaoListCreateVier(generics.ListCreateAPIView):
+class LoteSolicitacaoListCreateVier(generics.GenericAPIView):
     queryset = LoteSolicitacaoModel.objects.all()
     serializer_class = LoteSolicitacaoSerializer
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
 
     def get(self, request, *args, **kwargs):
+  
         try:
-           
-            queryset = LoteSolicitacaoModel.objects.all()
-            
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
 
-            serializer = self.serializer_class(queryset, many=True)
+      
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
+            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
         except Exception as e:
             return Response({"message": "Erro ao recuperar os dados.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -742,30 +756,77 @@ class LoteSolicitacaoListCreateVier(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         try:
 
-
-            serializer = LoteSolicitacaoSerializer(data=request.data)
+            data=request.data
+            loteId = request.data["loteId"]
+            finalidades = request.data["finalidades"]
+            loteData = LoteModel.objects.filter(id=loteId).get()
+            tempo = request.data['tempo']
+            valorLote = loteData.valor
+            precoLote = valorLote * tempo
+            # Salvar a solicitacao
+            SolicitacaoInstance = LoteSolicitacaoModel()
+            SolicitacaoInstance.userId = request.user
+            SolicitacaoInstance.loteId = loteData
+            SolicitacaoInstance.valor = precoLote
+            SolicitacaoInstance.tempo = tempo
             
-            if serializer.is_valid():
-                serializer.save()
-                # print(serializer.data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            SolicitacaoInstance.save() 
+            
+            # Salvar as finalidades
+            finalidade_descriptions = []
+            
+            
+            for finalidade in finalidades:
+                tipoData = TipoLoteModel.objects.get(id=finalidade["tipoId"])
+                finalidadeInstace = FinalidadeSolicitacaoModel()
+                finalidadeInstace.tipoId = tipoData
+                finalidadeInstace.solicitacao = SolicitacaoInstance
+                finalidadeInstace.save()
+                finalidade_descriptions.append(finalidadeInstace.tipoId)
+            print(finalidade_descriptions)
+            #  Enviar Email para o usuario Cadastrado
+            
+            email_to = request.user.email
+            lote_data = {
+            "codigoLote":SolicitacaoInstance.loteId.codigoLote,
+            "preco": precoLote,
+            "duracao":tempo,
+            "descricao":SolicitacaoInstance.loteId.descricaolote,
+            "imagem":SolicitacaoInstance.loteId.imagem,
+            "email":email_to,
+            "finalidade":finalidade_descriptions
+            # "finalidade":finalidadeInstace
+            }
+                
+            try:
+                send_email(to=email_to,
+                        subject=SOLICITACAO_LOTE,
+                        template_name="index.html",
+                        context=lote_data)
+                   
+                return Response({f"message": "Solicitação feita com sucesso", "Data":data, "OBS Foi lhe enviado um Email para" :request.user.email },status=status.HTTP_201_CREATED)
+            except Exception as e:
+                    print(e)
+                    return Response({"message": f"Error sending email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
+                          
         except Exception as e:
+            print(e)
             # Trate exceções de maneira adequada e forneça uma mensagem de erro
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
 class LoteSolicitacaoRetrieView(generics.RetrieveAPIView):
     queryset = LoteSolicitacaoModel.objects.all()
     serializer_class = LoteSolicitacaoSerializer
-    # permission_classes = [IsAdminUser]
-    # authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminUser]
+    authentication_classes = [JWTAuthentication]
 
-    def retrieve(self, request, *args, pk):
+    def get(self, request, *args):
         try:
-            lote = LoteSolicitacaoModel.objects.filter(loteId=pk) 
+            
+            lote = LoteSolicitacaoModel.objects.filter(userId=request.user.id) 
             serializer = self.serializer_class(lote, many=True)
 
             return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
@@ -837,9 +898,13 @@ class FinalidadeSolicitacaoListCrateView(generics.ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
             queryset = self.get_queryset()       
-            serializer = self.serializer_class(queryset, many=True)
-            # print(serializer.data)
+            serializer = self.serializer_class(queryset[start_num:end_num], many=True)
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
             
         except FinalidadeSolicitacaoModel.DoesNotExist:
@@ -853,13 +918,14 @@ class FinalidadeSolicitacaoListCrateView(generics.ListCreateAPIView):
             
             if serializer.is_valid():
                 serializer.save()
-                # print(serializer.data)
+                print(serializer.data)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            print(e)
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -871,6 +937,7 @@ class FinalidadeSolicitacaoRetrieveView(generics.RetrieveAPIView):
 
     def retrieve(self, request, pk):
         try:
+            
 
             finalidade = self.queryset.filter(solicitacao=pk)
             serializer = self.serializer_class(finalidade, many=True)
@@ -939,116 +1006,7 @@ class FinalidadeSolicitacaoUpdateDeleteView(generics.RetrieveUpdateDestroyAPIVie
 
             return Response("finalidade do lote  eliminda com sucesso!", status=status.HTTP_204_NO_CONTENT)   
 
-
-class FinalidadeListCrateView(generics.ListCreateAPIView):
-    queryset = Finalidademodel.objects.all()
-    serializer_class = FinalidadeSerializer
-    # permission_classes = [IsAdminUser]
-    # authentication_classes = [JWTAuthentication]
-
-    def get(self, request, *args, **kwargs):
-        try:
-
-            queryset = self.get_queryset()       
-            serializer = self.serializer_class(queryset, many=True)
-            # print(serializer.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        except Finalidademodel.DoesNotExist:
-            return Response("Nao existem finalidades", status=status.HTTP_401_UNAUTHORIZED)
-
-    def post(self,request):
-        try:
-            
-            serializer = self.serializer_class(data=request.data)
-            if serializer.is_valid():
-
-                serializer.save()
-                return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        except Exception as e:
-            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-
-class FinalidadeRetrieveView(generics.RetrieveAPIView):
-    queryset = Finalidademodel.objects.all()
-    serializer_class = FinalidadeSerializer
-    # permission_classes = [IsAdminUser]
-    # authentication_classes = [JWTAuthentication]
-
-    def retrieve(self, request, pk):
-        try:
-
-            finalidade = self.queryset.filter(loteid=pk)
-            res = Finalidademodel.objects.filter(loteid=pk)
-            serializer = self.serializer_class(finalidade, many=True)
-            # print(serializer.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        except Finalidademodel.DoesNotExist:
-
-            return Response(f"Nao existe nehuma finalidade ", status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-             print(e)
-        
-             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
-                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-
-class FinalidadeRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Finalidademodel.objects.all()
-    serializer_class = FinalidadeSerializer
-    # permission_classes = [IsAdminUser]
-    # authentication_classes = [JWTAuthentication]
-
-    def retrieve(self, request, pk):
-        try:
-
-            finalidade = self.queryset.filter(id=pk)
-            serializer = self.serializer_class(finalidade, many=True)
-            # print(serializer.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        except Finalidademodel.DoesNotExist:
-
-            return Response(f"Nao existe nehuma finalidade com este id {finalidade['id']}", status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-             print(e)
-        
-             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
-                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-
-    def put(self, request, pk):
-        try:
-              finalidade = Finalidademodel.objects.get(id=pk)
-
-        except Finalidademodel.DoesNotExist:
-                return Response("A finalidade do lote com o id  nao existe" , status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = self.serializer_class(finalidade, data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,"Finalidade criada com sucesso!", status=status.HTTP_202_ACCEPTED)
-        
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-        
-
-    def delete(self, request, pk):
-            try:
-                finalidade = Finalidademodel.objects.get(id=pk)
-
-            except Finalidademodel.DoesNotExist:
-                return Response("finalidade do lote nao existe no sistema", status=status.HTTP_404_NOT_FOUND)
-        
-            finalidade.delete()
-
-            return Response("finalidade do lote  eliminda com sucesso!", status=status.HTTP_204_NO_CONTENT)   
+ 
 
 
 class LoteAtribicaoListCreateView(generics.ListCreateAPIView):
@@ -1059,9 +1017,11 @@ class LoteAtribicaoListCreateView(generics.ListCreateAPIView):
     
     def get(self, request):
         try:
-            solicitacao = self.get_queryset()       
-            serializer = self.serializer_class(solicitacao, many=True)
-            
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         except:
@@ -1145,9 +1105,11 @@ class HistoricoLoteListView(generics.ListAPIView):
 
     def get(self, request): 
         try:
-            historico = self.get_queryset()
-            serializer = self.serializer_class(historico, many=True)
-
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
             
         except :
@@ -1216,9 +1178,11 @@ class LoteEmpresaListCreate(generics.ListCreateAPIView):
 
     def get(self, request):
         try:
-            empresaLote = self.get_queryset()
-            serializer = self.serializer_class(empresaLote, many=True)
-
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         except LoteEmpresaModel.DoesNotExist:
@@ -1301,9 +1265,11 @@ class LoteImageListCreateView(generics.ListCreateAPIView):
 
     def get(self, request):
         try:
-            titulo = self.get_queryset()
-            serializer = self.serializer_class(titulo, many=True)
-
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
             for item in serializer.data:
                 if item['imagem']:
                     item['imagem'] = request.build_absolute_uri(item['imagem'])
@@ -1386,3 +1352,305 @@ class LoteImagemRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
             return Response("imagem deletada com sucesso!", status=status.HTTP_204_NO_CONTENT)   
 
 
+# Crud Completo do Titluo dos documentos do  lote
+class DocumentoTituloListcreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    queryset = DocumentoTituloModel.objects.all()
+    serializer_class = DocumentoTituloSerializer
+
+    def get(self, request):
+        try:
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
+            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            print(e)
+            return Response({"message": "Erro ao Listar titulos de Documentos.", "error": str(e)},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    
+    def post(self, request):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+
+                serializer.save()
+                return Response({"data" : [ serializer.data ] }, status=status.HTTP_201_CREATED)
+            else:
+                print(serializer.errors)
+        except Exception as e:
+            print(e)
+            # Trate exceções de maneira adequada e forneça uma mensagem de erro
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DocumentoTitluoRetrieveDeleteUpdateView(APIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = DocumentoTituloModel.objects.all()
+    serializer_class = DocumentoTituloSerializer
+
+    def get(self, request,pk):
+        try:
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({f"Erro ao Porocessar:",str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except DocumentoTituloModel.DoesNotExist:
+            return Response({"message": "Nome não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self, request, pk ):
+         
+        try:
+            documento = DocumentoTituloModel.objects.get(id=pk) 
+
+            serializer = self.serializer_class(documento, data=request.data)
+        
+            if serializer.is_valid():
+              serializer.save()
+              return Response({f"Informacoes do Documento  actualizadas com sucesso!":serializer.data}, status=status.HTTP_200_OK)
+            else:
+              return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except DocumentoTituloModel.DoesNotExist:
+            
+            return Response("Documento  não encontrado.", status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+         
+         if not request.user.is_staff:
+            return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
+            
+         try:
+          documento = DocumentoTituloModel.objects.get(id=pk)  
+
+         except DocumentoTituloModel.DoesNotExist:
+            return Response("documento  não encontrado.", status=status.HTTP_404_NOT_FOUND)
+    
+         documento.delete()
+
+         return Response("documento excluido com sucesso",  status=status.HTTP_204_NO_CONTENT)
+            
+        # Crud Completo dos Documentos do lote
+
+class DocumentoLoteListcreateView(generics.GenericAPIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = DocumentoLoteModel.objects.all()
+    serializer_class = DocumentoLoteSerializer
+
+    def get(self, request):
+        try:
+            page_num = int(request.GET.get("page", 1))
+            limit_num = int(request.GET.get("limit", 100))
+            start_num = (page_num - 1) * limit_num
+            end_num = limit_num * page_num
+            serializer = self.serializer_class(self.queryset[start_num:end_num] , many=True)
+            for item in serializer.data:
+                    if item["documento"] :
+                        item["documento"] = request.build_absolute_uri(item["documento"])    
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(e)
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def post(self,request, *args):
+        try:
+                serializer = self.serializer_class(data=request.data)
+                
+                if serializer.is_valid():
+                    serializer.save()
+                    print(serializer.data)
+                    return Response({"data" : [ serializer.data ] }, status=status.HTTP_201_CREATED)
+
+                else:
+                    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            print(e)
+            return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DocumentoLoteRetrieveDeleteUpdateView(APIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    queryset = DocumentoLoteModel.objects.all()
+    serializer_class = DocumentoLoteSerializer
+
+    def get(self, request,pk):
+        try:
+            documneto = DocumentoLoteModel.objects.filter(loteId=pk)
+            serializer = self.serializer_class(documneto,many=True)
+
+            for item in serializer.data:
+                if item["documento"]:
+                    item["documento"] = request.build_absolute_uri(item["documento"])
+                
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({f"Erro ao Porocessar:",str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except DocumentoLoteModel.DoesNotExist:
+            return Response({"message": "Documento Nao encontrado."}, status=status.HTTP_404_NOT_FOUND)
+    
+
+    def put(self, request, pk ):
+         
+        try:
+            documento = DocumentoLoteModel.objects.get(id=pk) 
+
+            serializer = self.serializer_class(documento, data=request.data)
+        
+            if serializer.is_valid():
+              serializer.save()
+              return Response({f"Informacoes do Documento  actualizadas com sucesso!":serializer.data}, status=status.HTTP_200_OK)
+            else:
+              return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except DocumentoLoteModel.DoesNotExist:
+            
+            return Response("Documento  não encontrado.", status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+         
+         if not request.user.is_staff:
+            return Response("Você deve ter permissões de administrador.", status=status.HTTP_401_UNAUTHORIZED)
+            
+         try:
+          documento = DocumentoLoteModel.objects.get(id=pk)  
+
+         except DocumentoLoteModel.DoesNotExist:
+            return Response("documento  não encontrado.", status=status.HTTP_404_NOT_FOUND)
+    
+         documento.delete()
+
+         return Response("documento excluido com sucesso",  status=status.HTTP_204_NO_CONTENT)
+            
+        
+       
+# Integracao com api do mapbox para obter a distancia do usuario
+
+class GeoCodeView(APIView):
+    serializer_class = LocalizacaoLoteSerializer
+
+    def get(self, request):
+        page_num = int(request.GET.get("page", 1))
+        limit_num = int(request.GET.get("limit", 100))
+        start_num = (page_num - 1) * limit_num
+        end_num = limit_num * page_num
+
+        latitude = request.query_params.get('lat')
+        longitude = request.query_params.get('lon')
+        modo = request.query_params.get('modo')
+       
+        if not (latitude and longitude):
+            return Response({'error': 'Query parameters "lat" and "lon" are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        instancia = LocalizacaoLoteModel.objects.all()
+        serializer = self.serializer_class(instancia[start_num:end_num],many=True)
+        localizacoes = serializer.data
+        access_token = MAPBOX_API_KEY
+        origem = f"{longitude},{latitude}"
+
+        result = []
+
+        for localizacao in localizacoes:
+            destinolongitude = localizacao['longitude']
+            destinolatitude = localizacao['latitude']
+            destino = f"{destinolongitude},{destinolatitude}"
+            
+            id = localizacao['id']
+            # lote = localizacao['lote']
+            codigoLote = localizacao['lote']['codigoLote']
+            loteId = localizacao['lote']['id']
+            imagem = localizacao['lote']['imagem']
+            Status = localizacao['lote']['status']
+            preco = localizacao['lote']['valor']
+            itens = serializer.data
+            
+            for item in itens:
+                if item['lote']['imagem']:
+                    imagem =item['lote']['imagem']
+            imagem = request.build_absolute_uri(imagem)
+
+            try:
+                base_url = f"https://api.mapbox.com/directions/v5/mapbox/{modo}/{origem};{destino}"
+                params = {'access_token': access_token}
+                response = requests.get(base_url, params=params)
+                response.raise_for_status()  # Lidar com erros de solicitação
+
+                data = response.json()
+                duracao = data['routes'][0]['duration']
+                distancia = data['routes'][0]['distance']
+                sumario = data['routes'][0]['legs'][0]['summary']
+                
+                localizacao_data = {
+                    "id":id,
+                    "latitude": destinolatitude,
+                    "longitude": destinolongitude,
+                    # 'lote':lote,
+                     "codigoLote ":  codigoLote,
+                     'loteId':loteId,
+                     "Status":Status,
+                     "imagem" : imagem,
+                     'preco':preco
+                    
+                }
+
+                if distancia > 0 and duracao > 0:
+                    # Cálculos de duração, distância e velocidade
+
+                    dia = floor(duracao / 86400)
+                    hora = floor((duracao % 86400) / 3600)
+                    minutos = round((duracao % 3600) / 60)
+                    formatarDuracao = ''
+                    if dia > 0: formatarDuracao += f"{dia}d "
+                    if hora > 0: formatarDuracao += f"{hora}h e "
+                    formatarDuracao += f"{minutos}min"
+
+                    distanciaKm = distancia / 1000
+                    velocidadeKm = distanciaKm / (duracao / 3600)
+                    velocidadems = (distanciaKm / 1000) / duracao
+
+                    if distancia > 1000:
+                        localizacao_data["distancia"] = "{:.{}f}Km".format(distanciaKm, 2)
+                        localizacao_data["velocidade"] = "{:.{}f}Km/h".format(velocidadeKm, 2)
+                    if distancia < 1000:
+                        localizacao_data["distancia"] = "{:.{}f}m".format(distancia, 2)
+                        localizacao_data["velocidade"] = "{:.{}f}m/s".format((velocidadems), 5)
+
+                    localizacao_data["duracao"] = formatarDuracao
+
+                    if sumario == '' or sumario == None:
+                        localizacao_data['sumario'] = "Nao foi encontrado nenhum ponto de referencia"
+
+                    else:
+                        localizacao_data['sumario'] = sumario
+                    
+                else:
+                    localizacao_data["duracao"] = 0
+                    localizacao_data["distancia"] = 0
+                    localizacao_data["velocidade"] = 0
+                    localizacao_data['sumario'] = sumario
+
+                result.append(localizacao_data)
+
+            except Exception as e:
+                # Trate exceções de solicitação, por exemplo, log ou retorne erro personalizado
+                return Response({'error': f'Erro na solicitação à API do Mapbox: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({"Routes": result})

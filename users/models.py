@@ -19,9 +19,8 @@ class User(AbstractUser):
     updatedAt = models.DateTimeField(auto_now=True)
     bi =  models.CharField(max_length=15, blank=True, null=True)
     telefone = models.IntegerField(blank=True, null=True)
-    data_nascimento =models.DateTimeField(auto_now_add=True)
+    data_nascimento =models.DateField()
     foto = models.ImageField(upload_to="imagens/users/", default='imagens/users/user.png', blank=True, null=False)
-    # nivelid = models.ForeignKey(NivelModel, on_delete=models.CASCADE, null=True)
     nivel = models.CharField(choices=nivelChoices, max_length=50)
 
     def __str__(self):

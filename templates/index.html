@@ -1,11 +1,95 @@
 <!DOCTYPE html>
-<html lang="pt-pt">
+<html lang="pt-4">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zee</title>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <title>Email</title>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+
+        }
+
+        body {
+            display: grid;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 100%;
+            /* grid-template-rows: 150px 150px 120px; */
+            border: 1px solid black;
+            height: 720px;
+            width: 650px;
+            border-radius: 25px;
+            background-color: #0073ff;
+            color: white;
+            
+        }
+
+        .container div {
+
+            display: grid;
+            padding: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-right: 70px;
+            width: 100%;
+            
+    
+        }
+        .container div texto{
+            color: black;
+            text-decoration: none;
+
+
+        }
+        p{
+          
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Olá mundo</h1>
+    <div class="container">
+        <div>
+            <p>
+                Olá caro senhor/(a) {{ email }}, este é um e-mail automático enviado pela Zee.
+            </p>
+            <p>
+                Assunto: Informações sobre a solicitação feita Referente ao Lote: {{ codigoLote }}
+            </p>
+        </div>
+
+        <div>
+            <p><strong>Código do Lote:</strong> {{ codigoLote }}</p>
+            <p><strong>Preço do Lote:</strong> {{ preco }}</p>
+            <p><strong>Duração:</strong> {{ duracao }} anos</p>
+            <p><strong>Finalidades do Lote:</strong></p>
+
+            <ul>
+                {% for index in finalidade %}
+                    <li><strong>Finalidade:</strong> {{ index.titulo }}</li>
+                    <li><strong>Descrição:</strong> {{ index.descricao }}</li>
+                {% endfor %}
+            </ul>
+
+            <p><strong>Descrição do Lote:</strong> {{ descricao }}</p>
+        </div>
+
+        <div>
+            <img src="{{ imagem }}" alt="Imagem do Lote">
+        </div>
+    </div>
 </body>
+
 </html>

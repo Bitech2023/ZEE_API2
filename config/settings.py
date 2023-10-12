@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+
 import os
 import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,6 +29,7 @@ def add_folder(folder):
         
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-bujl^isj#ka%_k8e!i-uj34t9-vq_sg@hoq6tm@w(1+=!ts!2a'
+MAPBOX_API_KEY = 'pk.eyJ1IjoicGF1bGlub3R5b3ZhIiwiYSI6ImNsbmN2d2ZxdzA5dHQybGxsanZqbzQ2d2MifQ.HzV26x7iCbt10qWIcKqq7Q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,12 +45,11 @@ ALLOWED_HOSTS = ["*"]
 # ]
 # Outras configurações do CORS
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+CORS_ALLOWED_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS","Retrieve"]
 CORS_ALLOWED_HEADERS = ["*"]
 CORS_EXPOSE_HEADERS = []
 CORS_PREFLIGHT_MAX_AGE = 86400
 CORS_ALLOW_ALL_ORIGINS = True
-# AUTH_USER_MODEL = 'users.User'
 # Application definition
 
 INSTALLED_APPS = [
@@ -58,15 +59,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     # "app",
     "empresas",
     "lotes",  
-    # "pagamentos",
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     # 'qrcode',
-    'users'
+    'users',
+    'django_extensions',
 
 ]
 
@@ -117,6 +119,19 @@ DATABASES = {
 }
 
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "Zeeplus",
+#         "USER": "root",
+#         "PASSWORD": "",
+#         "HOST": "localhost",
+#         "PORT": "3306",
+
+#     }
+# }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -163,6 +178,7 @@ REST_FRAMEWORK = {
     #      'rest_framework.renderers.JSONRenderer',
     #     #  'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     # ],
+    
   'DEFAULT_PERMISSION_CLASSES': [
    'rest_framework.permissions.AllowAny',
 ],  
@@ -219,3 +235,18 @@ SIMPLE_JWT = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Configurar o email
+
+# Configurações de Email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+# Credenciais de Emailsistemasiia10@gmail.com
+# EMAIL_HOST_USER = "sistemasiia10@gmail.com"
+# EMAIL_HOST_PASSWORD = "gcmdopcpipnusaqb"
+EMAIL_HOST_USER = "mundombehenrique@gmail.com"
+EMAIL_HOST_PASSWORD = "mvutkcjitokwlofn"
+# Credenciais de Email
