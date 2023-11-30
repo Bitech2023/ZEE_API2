@@ -8,25 +8,33 @@ class SectorEmpresaModel(globalModel):
     def __str__(self):
         return self.actividade
 
-
+    
 class EmpresaModel(globalModel):
     nome =  models.CharField(max_length=55, null=False)
     funcionarios =  models.IntegerField(null=True)
     nif = models.CharField(max_length=15, null=False)
-    # dono = models.ForeignKey(DonoEmpresaModel, on_delete=models.CASCADE)
     logo  = models.ImageField(upload_to="imagens/logo/", blank= True, null=True)
     email = models.EmailField(unique=True, null=False)
     telefone = models.IntegerField(unique=True, default=00000000, null=False)
     detalhes = models.TextField()
     actividade = models.ForeignKey(SectorEmpresaModel, on_delete=models.CASCADE,null=False)
-    localizacaoLote = models.ForeignKey("lotes.LocalizacaoLoteModel", verbose_name=("Coordenadas dos lotes"), on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{}".format(self.nome)
     
-    
+    class Meta:
+        db_table = "Empresas"
+        verbose_name = "Empresa"
+        verbose_name_plural = "Empresa"
+
+       
 class DocumentosModel(globalModel):
     descricao = models.CharField(max_length=55)
     
+    
     def __str__(self):
         return str(self.descricao)
+
 
 class DocumentosEmpresaModel(globalModel):
     documentos = models.ForeignKey(DocumentosModel, on_delete=models.CASCADE)

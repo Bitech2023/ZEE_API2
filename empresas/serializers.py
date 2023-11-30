@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from rest_framework.response import Response
+from users.models import UserEmpresaModel
 
 
 class DocumentosSerializer(serializers.ModelSerializer):
@@ -18,7 +19,6 @@ class DocumentoEmpresaSerializer(serializers.ModelSerializer):
 
 
 
-
 class ActividadeSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -27,10 +27,18 @@ class ActividadeSerializer(serializers.ModelSerializer):
             
 
 class EmpresaSerializer(serializers.ModelSerializer):
-    actividade = ActividadeSerializer()
+    # actividade2 = serializers.SerializerMethodField()
     class Meta:
         model = EmpresaModel
         fields = "__all__"
+    # def get_actividade2(self, obj):
+    #     try:
+    #         actividadeobj = SectorEmpresaModel.objects.filter(actividade=obj)
+    #         print(actividadeobj)
+    #         return ActividadeSerializer(actividadeobj,many=True).data
+    #     except Exception as e:
+    #         print(e)  
+
 class NotificacaoGeralSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificacaoGeralModel
@@ -41,7 +49,9 @@ class FuncionariosSerializer(serializers.ModelSerializer):
  
         model = FuncionariosModel
         fields = "__all__"
+
 class NotificacaoEmpresaSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificacaoEmpresaModel
         fields = "__all__"
+

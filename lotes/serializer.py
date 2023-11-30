@@ -1,31 +1,29 @@
 from empresas.serializers import EmpresaSerializer
-from .models import *
+from lotes.models import *
 from rest_framework import serializers
 from rest_framework.response import Response
 from users.serializers import UserSerializer
 
-class LoteEmpresaSerializerMany( serializers.ModelSerializer):
-    empresa = EmpresaSerializer(read_only=True)
-    class Meta:
-        model = LoteEmpresaModel
-        fields = "__all__"        
 
 class LoteSerializer(serializers.ModelSerializer):
     documentos = serializers.SerializerMethodField()
+ 
 
     class Meta:
         model = LoteModel
+        # fields = ['id','codigoLote',"status","data_disponibilidade","comprimento","largura","imagem","valor","descricaolote","documentos"]
         fields = "__all__"
 
     def get_documentos(self,obj):
         try:
             documentosobj = DocumentoLoteModel.objects.filter(loteId=obj)
+            
             return DocumentoLoteSerializer(documentosobj,many=True).data   #DocumentoLoteModel(documentosobj,many=True) 
-        
+
         except Exception as e:
             print(e)
             return Response("Error: ",str(e))
-
+        
 
 class LoteEmpresaSerializer( serializers.ModelSerializer):
     empresa = EmpresaSerializer(read_only=True)
@@ -123,6 +121,7 @@ class GeoLocalizacaoSerializer(serializers.ModelSerializer):
 
 class TipoSerializer(serializers.ModelSerializer):
     # finalidade = serializers.SerializerMethodField()
+    
     class Meta:
         model = TipoLoteModel
         fields = '__all__'
@@ -159,8 +158,6 @@ class FinalidadeSolitacaoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-
 class LoteAtribuicaoSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoteAtribuicaoModel
@@ -168,9 +165,15 @@ class LoteAtribuicaoSerializer(serializers.ModelSerializer):
 
 
 class LoteImagerializer(serializers.ModelSerializer):
+    # lote = serializers.SerializerMethodField()
     class Meta:
         model = Loteimage
         fields = '__all__'
+
+
+    # def get_lote(self, obj):
+    #     loteobj = LoteModel.objects.filter(loteimage=obj)
+    #     return LoteSerializer(loteobj,many=True)
 
 class HistoricoLoteSerializer(serializers.ModelSerializer):
     class Meta:

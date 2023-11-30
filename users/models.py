@@ -19,14 +19,22 @@ class User(AbstractUser):
     updatedAt = models.DateTimeField(auto_now=True)
     bi =  models.CharField(max_length=15, blank=True, null=True)
     telefone = models.IntegerField(blank=True, null=True)
-    data_nascimento =models.DateField()
+    data_nascimento =models.DateField(null=True)
     foto = models.ImageField(upload_to="imagens/users/", default='imagens/users/user.png', blank=True, null=False)
     nivel = models.CharField(choices=nivelChoices, max_length=50)
 
     def __str__(self):
         return self.email
     
-    groups = models.ManyToManyField(
+
+
+class UserEmpresaModel(globalModel):
+        empresa = models.ForeignKey("empresas.EmpresaModel", on_delete=models.CASCADE)
+        user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+
+groups = models.ManyToManyField(
     'auth.Group',
     related_name='auth_users',
     blank=True,
@@ -36,9 +44,7 @@ class User(AbstractUser):
         'granted to each of their groups.'
     )
     )
-class UserEmpresaModel(globalModel):
-    empresa = models.ForeignKey(EmpresaModel, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
 
 
 

@@ -31,10 +31,10 @@ def add_folder(folder):
 SECRET_KEY = 'django-insecure-bujl^isj#ka%_k8e!i-uj34t9-vq_sg@hoq6tm@w(1+=!ts!2a'
 MAPBOX_API_KEY = 'pk.eyJ1IjoicGF1bGlub3R5b3ZhIiwiYSI6ImNsbmN2d2ZxdzA5dHQybGxsanZqbzQ2d2MifQ.HzV26x7iCbt10qWIcKqq7Q'
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 APPEND_SLASH=True
-
 
 ALLOWED_HOSTS = ["*"]
 
@@ -69,10 +69,12 @@ INSTALLED_APPS = [
     # 'qrcode',
     'users',
     'django_extensions',
+    # 'tipo'
 
 ]
 
 AUTH_USER_MODEL = 'users.User'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -84,7 +86,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
-
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -250,3 +251,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "mundombehenrique@gmail.com"
 EMAIL_HOST_PASSWORD = "mvutkcjitokwlofn"
 # Credenciais de Email
+
+

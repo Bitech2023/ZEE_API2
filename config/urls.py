@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from lotes.views import *
 urlpatterns = [
     path('admin/',    admin.site.urls),
-    path("index/"    ,Index.as_view(),name="index"),
+    path(""    ,Index.as_view(),name="index"),
     path('auth/', TokenObtainPairView.as_view()),
     path('lote/', include("lotes.urls")),
     path('empresas/', include("empresas.urls")),

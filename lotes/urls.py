@@ -21,8 +21,8 @@ urlpatterns =[
     path('descricao/<uuid:pk>', descricaoUpdateDeleteView.as_view()),
 
 
-    path('imagem', LoteImageListCreateView.as_view()),
-    path('imagem/<uuid:pk>', LoteImagemRetrieveUpdateDestroy.as_view()),
+    path('imagem', LoteImageListCreateView.as_view(), name="Lote_Image"),
+    path('imagem/<uuid:pk>', LoteImagemRetrieveUpdateDestroy.as_view(),name="Lote_Imagem_delete"),
 
 
     path('detalhes', DetalhesCreateListView.as_view()),
@@ -71,8 +71,9 @@ urlpatterns =[
     path("documento/lote", DocumentoLoteListcreateView.as_view(), name="Documnetos_Tilulo"),
     path("documento/lote/<uuid:pk>", DocumentoLoteRetrieveDeleteUpdateView.as_view()),
 
-    path('geocode/', GeoCodeView.as_view(), name = "Obter a Distancia entre pontos")
+    path('geocode/', GeoCodeView.as_view(), name = "Obter a Distancia entre pontos"),
 
+    path('template', template,name="Ola")
     ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

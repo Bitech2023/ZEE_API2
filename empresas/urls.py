@@ -4,25 +4,29 @@ from .views import *
 app_name="Empresa_perfil"
 
 urlpatterns = [
-    path('empresas', EmpresaListCreateView.as_view(), name="Empresas_Listar"),
+    path('', EmpresaListCreateView.as_view(), name="Empresas_Listar"),
     # path('empresas/localizacao', EmpresaListView.as_view(), name="Empresas_Listar"),
-    path('empresas/<uuid:pk>', EmpresaUpdateDeleteView.as_view(), name="Empresa_Editar_Criar"),
+    path('<uuid:pk>', EmpresaUpdateDeleteView.as_view(), name="Empresa_Editar_Criar"),
 
 
-    path('empresa/funcionarios',FuncionariosListView.as_view()),
-    path('empres/funcionarios/create', FuncionariosCreateView.as_view(), name="Funcionario-Crud" ),
+    path('funcionarios',FuncionariosListView.as_view()),
+    path('funcionarios/create', FuncionariosCreateView.as_view(), name="Funcionario-Crud" ),
 
 
     path('notificacao/geral/criar/', NotificacaoGeralCreateView.as_view()),
     path('empresa/notificacao/criar/', NotificacaoEmpresaCreateView.as_view()),
 
 
-    path('empresa/documentos', DocumentoListCreateView.as_view()),
-    path('empresa/documento/<uuid:pk>', DocumnetoUpdateDelete.as_view()),
+    path('documentos', DocumentoListCreateView.as_view()),
+    path('documento/<uuid:pk>', DocumnetoUpdateDelete.as_view()),
 
 
-    path('empresa/detalhe', DocumentoEmpresaListCreateView.as_view()),
-    path('empresa/detalhe/<uuid:pk>', DocumnetoEmpresaUpdateDelete.as_view())
+    path('detalhe', DocumentoEmpresaListCreateView.as_view()),
+    path('detalhe/<uuid:pk>', DocumnetoEmpresaUpdateDelete.as_view()),
+
+
+
+
     
     
 ]

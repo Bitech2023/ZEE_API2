@@ -23,20 +23,20 @@ class UserEmpresaSerializer(serializers.ModelSerializer):
     
     
 class UserSerializer(serializers.ModelSerializer):
-        empresas = serializers.SerializerMethodField()
+        # empresas = serializers.SerializerMethodField()
         class Meta:
             model = User
 
-            fields = ['id','bi','telefone','data_nascimento','foto', 'nivel','email','username','first_name','last_name','empresas','password']
+            fields = "__all__"
                     
 
-        def get_empresas(self, obj):  
-            try:
-                empresaObject = UserEmpresaModel.objects.filter(user=obj)
-                if empresaObject:
-                     return UserEmpresaSerializer(empresaObject, many=True).data[0]
-                else:
-                     return{'message':'empty'}
-            except Exception as error:
-                return {'error': str(error)}
+        # def get_empresas(self, obj):  
+        #     try:
+        #         empresaObject = UserEmpresaModel.objects.filter(user=obj)
+        #         if empresaObject:
+        #              return UserEmpresaSerializer(empresaObject, many=True).data[0]
+        #         else:
+        #              return{'message':'empty'}
+        #     except Exception as error:
+        #         return {'error': str(error)}
 

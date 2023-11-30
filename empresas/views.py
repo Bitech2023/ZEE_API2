@@ -18,23 +18,23 @@ class EmpresaListCreateView(generics.ListCreateAPIView):
         try:
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
-            
 
             for item in serializer.data:
                 if item['logo']:
                     item['logo'] = request.build_absolute_uri(item['logo'])
             
-
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         except Exception as e:
             return Response({"message": "Erro ao processar a solicitação.", "error": str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+        
     def post(self, request, *args, **kwargs):
         try:
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
+                print(serializer.data)
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
@@ -52,15 +52,16 @@ class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
     def retrieve(self, request, *args, pk):
         try:
-            empresa = self.queryset.get(id=pk)
+            empresa =self.queryset.get(id=pk)
             
             serializer = self.serializer_class(empresa)
           
-            for item in serializer.data:
-                if item['logo']:
-                    item['logo'] = request.build_absolute_uri(item['logo'])
-                
-            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+            # for item in serializer.data:
+            #     if item['Logo']:
+            #         item['Logo'] = request.build_absolute_uri(item['Logo'])
+            
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         except EmpresaModel.DoesNotExist:
             return Response({"message": "Empresa não encontrada."}, status=status.HTTP_404_NOT_FOUND)
@@ -77,14 +78,14 @@ class EmpresaUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
         except EmpresaModel.DoesNotExist:
             
-            return Response(f"Empresa {empresanome} não encontrada.", status=status.HTTP_404_NOT_FOUND)
+            return Response(f"Empresa:{empresanome} não encontrada.", status=status.HTTP_404_NOT_FOUND)
         
         serializer = self.serializer_class(empresa, request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            # serializer.save()
 
-            return Response(f"Informacoes da Empresa  {empresanome},"" actualizadas com sucesso!", status=status.HTTP_200_OK)
+            return Response(f"Informacoes da Empresa: {empresanome}, actualizadas com sucesso!", status=status.HTTP_200_OK)
         
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -195,7 +196,7 @@ class DocumnetoEmpresaUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
 
     def put(self, request, pk):
         try:
-            documento = DocumentosModel.objects(id=pk)
+            documento = DocumentosModel.objects.get(id=pk)
 
         except DocumentosModel.DoesNotExist:
             

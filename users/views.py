@@ -133,9 +133,9 @@ class USerEmpresaListCreate(generics.ListCreateAPIView):
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
             
-            # for item in serializer.data:
-            #     if item['foto']:
-            #         item['foto'] = request.build_absolute_uri(item['foto'])
+            for item in serializer.data:
+                if item['foto']:
+                    item['foto'] = request.build_absolute_uri(item['foto'])
             
 
             return Response(serializer.data, status=status.HTTP_200_OK)
